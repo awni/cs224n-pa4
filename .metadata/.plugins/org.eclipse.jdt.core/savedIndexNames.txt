@@ -1,0 +1,3 @@
+INDEX VERSION 1.126+/Users/awni/Desktop/cs224n/homework/pa4/.metadata/.plugins/org.eclipse.jdt.core
+3105964796.index
+3000285004.index

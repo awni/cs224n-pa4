@@ -26,6 +26,7 @@ public class NER {
 	// initialize model 
 	WindowModel model = new WindowModel(5, 100,0.001);
 	model.initWeights();
+	System.out.println("GOT HERE?");
 
 	//TODO: Implement those two functions
 	//model.train(trainData);

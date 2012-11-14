@@ -1,0 +1,4 @@
+#!/bin/sh
+
+./ant
+java -cp classes -Xmx1G cs224n.deep.NER ../data/train ../data/dev -print
