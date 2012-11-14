@@ -31,7 +31,7 @@ public class NER {
 	SimpleMatrix allVecs= FeatureFactory.readWordVectors("../data/wordVectors.txt");
 
 	// initialize model 
-	WindowModel model = new WindowModel(windowSize, hiddenSize,learningRate);
+	WindowModel model = new WindowModel(windowSize,hiddenSize,learningRate);
 	model.initWeights();
 
 	//TODO: Implement those two functions
