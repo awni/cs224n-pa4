@@ -7,16 +7,23 @@ import org.ejml.simple.SimpleMatrix;
 
 
 public class NER {
-    
+
+	
     public static void main(String[] args) throws IOException {
 	if (args.length < 2) {
 	    System.out.println("USAGE: java -cp classes NER ../data/train ../data/dev");
 	    return;
 	}	    
 
+    int windowSize=5;
+    int hiddenSize=100;
+    double learningRate=0.001;
+
+    
 	// this reads in the train and test datasets
 	List<Datum> trainData = FeatureFactory.readTrainData(args[0]);
-	List<Datum> testData = FeatureFactory.readTestData(args[1]);	
+	List<Datum> testData = FeatureFactory.readTestData(args[1]);
+	
 	
 	//	read the train and test data
 	//TODO: Implement this function (just reads in vocab and word vectors)
@@ -24,12 +31,11 @@ public class NER {
 	SimpleMatrix allVecs= FeatureFactory.readWordVectors("../data/wordVectors.txt");
 
 	// initialize model 
-	WindowModel model = new WindowModel(5, 100,0.001);
+	WindowModel model = new WindowModel(windowSize, hiddenSize,learningRate);
 	model.initWeights();
-	System.out.println("GOT HERE?");
 
 	//TODO: Implement those two functions
-	//model.train(trainData);
+	model.train(trainData);
 	//model.test(testData);
     }
 }

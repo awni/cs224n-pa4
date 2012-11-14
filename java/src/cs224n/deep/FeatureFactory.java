@@ -52,18 +52,49 @@ public class FeatureFactory {
 	// Look up table matrix with all word vectors as defined in lecture with dimensionality n x |V|
 	static SimpleMatrix allVecs; //access it directly in WindowModel
 	public static SimpleMatrix readWordVectors(String vecFilename) throws IOException {
-		if (allVecs!=null) return allVecs;
-		return null;
 		//TODO implement this
-		//set allVecs from filename		
+		//set allVecs from filename	
+		
+		BufferedReader in = new BufferedReader(new FileReader(vecFilename));
+		
+		ArrayList<String[]> wordVecsArray = new ArrayList<String[]>();
+		
+		for (String line = in.readLine(); line != null; line = in.readLine()){
+			String[] bits = line.split("\\s+");
+			wordVecsArray.add(bits);			
+		}
+
+		int numRows = wordVecsArray.size();
+		int numCols = wordVecsArray.get(0).length;
+		allVecs = new SimpleMatrix(numRows, numCols);
+		
+		for(int row=0; row<numRows; row++){
+			String[] vec = wordVecsArray.get(row);
+			for(int col=0; col<numCols; col++){
+				allVecs.set(row,col,new Double(vec[col]));
+			}
+		}
+//		if (allVecs!=null) return allVecs;
+		return allVecs;
+	
 
 	}
+	
 	// might be useful for word to number lookups, just access them directly in WindowModel
 	public static HashMap<String, Integer> wordToNum = new HashMap<String, Integer>(); 
 	public static HashMap<Integer, String> numToWord = new HashMap<Integer, String>();
 
 	public static HashMap<String, Integer> initializeVocab(String vocabFilename) throws IOException {
 		//TODO: create this
+		BufferedReader in = new BufferedReader(new FileReader(vocabFilename));
+		
+		int index = 0;
+		for (String line = in.readLine(); line != null; line = in.readLine()){
+			wordToNum.put(line, index);
+			numToWord.put(index, line);
+			index++;
+		}
+		
 		return wordToNum;
 	}
  
