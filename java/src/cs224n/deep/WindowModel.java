@@ -62,8 +62,9 @@ public class WindowModel {
 		SimpleMatrix target = new SimpleMatrix(1,m);
 		buildInputAndTargetMatrix(_trainData, input, target);
 		
+		
+		//Forward propagates for given sampleNum
 		int sampleNum = 0;
-		//Forward propagate
 		SimpleMatrix a = tanh((W.mult(input.extractVector(false, sampleNum))).plus(b1));
 		SimpleMatrix h = sigmoid(U.mult(a).plus(b2));
 		
