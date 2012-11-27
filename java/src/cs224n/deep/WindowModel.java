@@ -71,19 +71,20 @@ public class WindowModel {
 		SimpleMatrix h = sigmoid(U.mult(a).plus(b2));
 		
 		// Calculate derivatives
-		
 		// Common stuff
-		double djdh = target.get(1, sampleNum) - h.get(1, 1);
-		SimpleMatrix one = new SimpleMatrix(a.numRows(), a.numCols(), true, 1);
+		double djdh = target.get(0, 0) - h.get(0,0);
+		SimpleMatrix one = new SimpleMatrix(a.numRows(), a.numCols());
 		one.print();
-		SimpleMatrix aprime = one.plus(a.elementMult(a).scale(-1));
+//		SimpleMatrix aprime = one.plus(a.elementMult(a).scale(-1));
+//		
+//		// dj/dU
+//		SimpleMatrix djdU = a.scale(djdh).plus(U.scale(C/m));
+//		
+//		// dj/db(2)
+//		double[][] doubledjdb2 = {{djdh}};
+//		SimpleMatrix djdb2 = new SimpleMatrix(doubledjdb2); 
 		
-		// dj/dU
-		SimpleMatrix djdU = a.scale(djdh).plus(U.scale(C/m));
-		
-		// dj/db(2)
-		double[][] doubledjdb2 = {{djdh}};
-		SimpleMatrix djdb2 = new SimpleMatrix(doubledjdb2); 
+		// dj/dW
 		
 		
 		
