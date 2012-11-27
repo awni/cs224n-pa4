@@ -93,6 +93,17 @@ public class WindowModel {
 		SimpleMatrix djdL = W.transpose().mult(djdb1);
 		
 	}
+	
+	private double cost(SimpleMatrix x, SimpleMatrix W, SimpleMatrix b1, SimpleMatrix U, SimpleMatrix b2, double y, double m){
+		SimpleMatrix a = tanh((W.mult(x)).plus(b1));
+		double h = sigmoid(U.mult(a).plus(b2)).get(0,0);
+		double cost = -y*Math.log(h) - (1-y)*Math.log(1-h);
+		
+		//with regulartization term
+		cost = cost + (C/(2*m)) * (W.elementMult(W).elementSum() + U.elementMult(U).elementSum());
+		
+		return cost;
+	}
 
 	
 	public void test(List<Datum> testData){
@@ -137,9 +148,9 @@ public class WindowModel {
 		
 		return tan;
 	}
-	
+
 	//Gets integer label for sample num
-	private int getLabel(List<Datum> data, int sampleNum){
+	private double getLabel(List<Datum> data, int sampleNum){
 		if(data.get(sampleNum).label.equals("O"))
 			return 0;
 		
