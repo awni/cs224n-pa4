@@ -62,14 +62,14 @@ public class FeatureFactory {
 			wordVecsArray.add(bits);			
 		}
 
-		int numRows = wordVecsArray.size();
-		int numCols = wordVecsArray.get(0).length;
+		int numRows = wordVecsArray.get(0).length; //Size of word vector
+		int numCols = wordVecsArray.size(); //Number of words
 		allVecs = new SimpleMatrix(numRows, numCols);
 		
-		for(int row=0; row<numRows; row++){
-			String[] vec = wordVecsArray.get(row);
-			for(int col=0; col<numCols; col++){
-				allVecs.set(row,col,new Double(vec[col]));
+		for(int col=0; col<numCols; col++){
+			String[] vec = wordVecsArray.get(col);
+			for(int row=0; row<numRows; row++){
+				allVecs.set(row,col,new Double(vec[row]));
 			}
 		}
 		in.close();

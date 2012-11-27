@@ -17,14 +17,17 @@ public class WindowModel {
 
 	//
 	public int windowSize, wordSize, hiddenSize;
-	double learningRate;
+	double learningRate, C;
+	int UUUNKKK = 0;
+	String START = "<s>";
+	String END = "</s>";
 	
 	public WindowModel(int _windowSize, int _hiddenSize, double _lr){
 		this.windowSize = _windowSize;
 		this.hiddenSize = _hiddenSize;
 		this.wordSize = 50;
 		this.learningRate = _lr;
-		
+		this.C = 0.0;
 		//TODO
 	}
 
@@ -57,37 +60,31 @@ public class WindowModel {
 	public void train(List<Datum> _trainData ){
 		//Setup -------------
 		int m = _trainData.size();
-		//Input matrix
-		SimpleMatrix input = new SimpleMatrix(windowSize*wordSize, m);
-		//Target matrix
-		SimpleMatrix target = new SimpleMatrix(1,m);
-		buildInputAndTargetMatrix(_trainData, input, target);
-		
 		
 		//Forward propagates for given sampleNum
-		int sampleNum = 0;
-		double C = 0.0;
-		SimpleMatrix x = input.extractVector(false, sampleNum);
+		
+		int sampleNum = 0; //temporary index until we setup sgd
+		
+		SimpleMatrix x = getWindowedSample(_trainData, sampleNum);
 		SimpleMatrix a = tanh((W.mult(x)).plus(b1));
 		SimpleMatrix h = sigmoid(U.mult(a).plus(b2));
 		
 		// Calculate derivatives
+		
 		// Common stuff
-		double djdh = target.get(0, 0) - h.get(0,0);
+		double djdh = getLabel(_trainData, sampleNum) - h.get(0,0);
 		SimpleMatrix aprime = a.elementMult(a).scale(-1);
-		aprime.print();
 		CommonOps.add(aprime.getMatrix(), 1);
-		aprime.print();
 		
 		// dj/dU
-		SimpleMatrix djdU = a.scale(djdh).plus(U.scale(C/m));
-		
-		// dj/db(2)
+		SimpleMatrix djdU = a.scale(djdh).plus(U.transpose().scale(C/m));
+
+		// dj/db2
 		double[][] doubledjdb2 = {{djdh}};
 		SimpleMatrix djdb2 = new SimpleMatrix(doubledjdb2); 
 		
 		//dj/db1
-		SimpleMatrix djdb1 = U.elementMult(aprime).scale(djdh);
+		SimpleMatrix djdb1 = U.transpose().elementMult(aprime).scale(djdh);
 
 		// dj/dW
 		SimpleMatrix djdW = djdb1.mult(x.transpose()).plus(W.scale(C/m));
@@ -95,9 +92,6 @@ public class WindowModel {
 		// dj/dL
 		SimpleMatrix djdL = W.transpose().mult(djdb1);
 		
-		//Backwards propagate
-		
-		//Run SGD calculating gradient then updating params 
 	}
 
 	
@@ -144,49 +138,43 @@ public class WindowModel {
 		return tan;
 	}
 	
-	//Builds windowed input matrix and target matrix which contains labels for center word 
-	//in each input window sample
-	private void buildInputAndTargetMatrix(List<Datum> data, SimpleMatrix input, SimpleMatrix target){		
-		int m = data.size();
-		int UUUNKKK = 0;
-		String START = "<s>";
-		String END = "</s>";
+	//Gets integer label for sample num
+	private int getLabel(List<Datum> data, int sampleNum){
+		if(data.get(sampleNum).label.equals("O"))
+			return 0;
 		
+		return 1;
+	}
+	
+	//Builds windowed input matrix
+	private SimpleMatrix getWindowedSample(List<Datum> data, int sampleNum){		
+		
+		int m = data.size();			
 		String sample;
 		int range = (windowSize-1)/2;
-		for(int i=0; i<m; i++){
+		SimpleMatrix windowSample = new SimpleMatrix(windowSize*wordSize,1);
+		//Make input mat with correct window size
+		for(int i=-range; i<=range; i++){
 			
-			//Set label in target matrix
-			String label = data.get(i).label;
-			if(label.equals("O")){
-				target.set(0,i,0);
+			
+			if((sampleNum+i)<0){
+				sample = START;
+			}else if((sampleNum+i)>=m){
+				sample = END;
 			}else{
-				target.set(0,i,1);
+				sample = data.get(sampleNum+i).word;
 			}
 			
-			//Make input mat with correct window size
-			for(int j=-range; j<=range; j++){
-				Integer vecNum;
-				
-				if((i+j)<0){
-					sample = START;
-				}else if((i+j)>=m){
-					sample = END;
-				}else{
-					sample = data.get(i+j).word;
-				}
-				
-				vecNum = FeatureFactory.wordToNum.get(sample);
+			Integer vecNum = FeatureFactory.wordToNum.get(sample);
 
-				//If word doesn't exist insert UUUNKK
-				if(vecNum == null)
-					vecNum = UUUNKKK;
-				
-				SimpleMatrix wordVec = FeatureFactory.allVecs.extractVector(true, vecNum);
-				input.insertIntoThis((j+range)*wordSize, i, wordVec.transpose());
-			}
+			//If word doesn't exist insert UUUNKK
+			if(vecNum == null)
+				vecNum = UUUNKKK;
+			
+			SimpleMatrix wordVec = FeatureFactory.allVecs.extractVector(false, vecNum);
+			windowSample.insertIntoThis((i+range)*wordSize, 0, wordVec);
 		}
-		
+		return windowSample;
 	}
 	
 }
