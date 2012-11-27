@@ -1,5 +1,4 @@
 package cs224n.deep;
-import java.util.*;
 
 public class Datum {
 

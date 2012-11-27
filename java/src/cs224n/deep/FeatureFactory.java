@@ -9,11 +9,9 @@ import org.ejml.simple.*;
 
 public class FeatureFactory {
 
-
 	private FeatureFactory() {
 
 	}
-
 	 
 	static List<Datum> trainData;
 	/** Do not modify this method **/
@@ -29,8 +27,7 @@ public class FeatureFactory {
         return testData;
 	}
 	
-	private static List<Datum> read(String filename)
-			throws FileNotFoundException, IOException {
+	private static List<Datum> read(String filename) throws FileNotFoundException, IOException {
 		List<Datum> data = new ArrayList<Datum>();
 		BufferedReader in = new BufferedReader(new FileReader(filename));
 		for (String line = in.readLine(); line != null; line = in.readLine()) {
@@ -44,6 +41,7 @@ public class FeatureFactory {
 			Datum datum = new Datum(word, label);
 			data.add(datum);
 		}
+		in.close();
 
 		return data;
 	}
@@ -74,7 +72,8 @@ public class FeatureFactory {
 				allVecs.set(row,col,new Double(vec[col]));
 			}
 		}
-//		if (allVecs!=null) return allVecs;
+		in.close();
+		
 		return allVecs;
 	
 
@@ -94,6 +93,8 @@ public class FeatureFactory {
 			numToWord.put(index, line);
 			index++;
 		}
+		
+		in.close();
 		
 		return wordToNum;
 	}

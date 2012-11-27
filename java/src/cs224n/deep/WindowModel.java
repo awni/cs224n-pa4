@@ -3,6 +3,7 @@ import java.lang.*;
 import java.util.*;
 
 import org.ejml.data.*;
+import org.ejml.ops.CommonOps;
 import org.ejml.simple.*;
 
 
@@ -65,10 +66,25 @@ public class WindowModel {
 		
 		//Forward propagates for given sampleNum
 		int sampleNum = 0;
+		double C = 0.0;
 		SimpleMatrix a = tanh((W.mult(input.extractVector(false, sampleNum))).plus(b1));
 		SimpleMatrix h = sigmoid(U.mult(a).plus(b2));
 		
-		//Compute cost
+		// Calculate derivatives
+		
+		// Common stuff
+		double djdh = target.get(1, sampleNum) - h.get(1, 1);
+		SimpleMatrix one = new SimpleMatrix(a.numRows(), a.numCols(), true, 1);
+		one.print();
+		SimpleMatrix aprime = one.plus(a.elementMult(a).scale(-1));
+		
+		// dj/dU
+		SimpleMatrix djdU = a.scale(djdh).plus(U.scale(C/m));
+		
+		// dj/db(2)
+		double[][] doubledjdb2 = {{djdh}};
+		SimpleMatrix djdb2 = new SimpleMatrix(doubledjdb2); 
+		
 		
 		
 		//Backwards propagate
