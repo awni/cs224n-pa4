@@ -142,7 +142,7 @@ public class WindowModel {
 		}
 		  
 		}
-		System.out.println("Train data ");
+		System.out.print("Train ");
 		test(_trainData);
 		// run gradient check
 //		SimpleMatrix numdL = calculateNumGrad(x,0,x,y,m);

@@ -39,7 +39,7 @@ public class NER {
     
     // TODO: Implement those two functions
     model.train(trainData, testData);
-    System.out.println("Test data ");
+    System.out.print("Test ");
     model.test(testData);
   }
 }
