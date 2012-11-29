@@ -13,9 +13,9 @@ public class NER {
       return;
     }
     
-    int windowSize = 5;
-    int hiddenSize = 100;
-    double learningRate = 0.001;
+    int windowSize = 9;
+    int hiddenSize = 200;
+    double learningRate = 0.01;
     double regularization = 0.0;
     
     if(args.length > 5){
@@ -34,7 +34,8 @@ public class NER {
     SimpleMatrix allVecs = FeatureFactory.readWordVectors("../data/wordVectors.txt");
 
     // initialize model
-    WindowModel model = new WindowModel(windowSize, hiddenSize, learningRate, regularization);
+//    WindowModel model = new WindowModel(windowSize, hiddenSize, learningRate, regularization);
+    WindowModel2 model = new WindowModel2(windowSize, hiddenSize, learningRate, regularization);
     model.initWeights();
     
     // TODO: Implement those two functions

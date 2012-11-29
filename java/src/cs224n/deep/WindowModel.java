@@ -95,7 +95,7 @@ public class WindowModel {
 		}
 		int itNum = 0;
 		for(int count=0; count<3; count++){
-			Collections.shuffle(rand);
+			//Collections.shuffle(rand);
 		for(int sampleNum = 0; sampleNum < m; sampleNum++){
 //			if(itNum%100000==0) {
 //				System.out.println("Iter "+itNum);
@@ -139,25 +139,26 @@ public class WindowModel {
 			b1 = b1.plus(djdb1.scale(-learningRate));
 			updateWindowedSample(_trainData, rand.get(sampleNum), djdL);
 		
+
+		System.out.print("Train ");
+		test(_trainData);
+//			// run gradient check
+//			SimpleMatrix numdL = calculateNumGrad(x,0,x,y,m);
+//			SimpleMatrix numdW = calculateNumGrad(W,1,x,y,m);
+//			SimpleMatrix numdb1 = calculateNumGrad(b1,2,x,y,m);
+//			SimpleMatrix numdU = calculateNumGrad(U, 3, x, y, m);
+//			SimpleMatrix numdb2 = calculateNumGrad(b2,4,x,y,m);
+//			
+//			double norm = 0;
+//			norm += matrixNorm(djdL, numdL);
+//			norm += matrixNorm(djdW, numdW);
+//			norm += matrixNorm(djdb1, numdb1);
+//			norm += matrixNorm(djdU, numdU);
+//			norm += matrixNorm(djdb2, numdb2);
+//			System.out.println("Norm is:" +Math.sqrt(norm));
 		}
 		  
 		}
-		System.out.print("Train ");
-		test(_trainData);
-		// run gradient check
-//		SimpleMatrix numdL = calculateNumGrad(x,0,x,y,m);
-//		SimpleMatrix numdW = calculateNumGrad(W,1,x,y,m);
-//		SimpleMatrix numdb1 = calculateNumGrad(b1,2,x,y,m);
-//		SimpleMatrix numdU = calculateNumGrad(U, 3, x, y, m);
-//		SimpleMatrix numdb2 = calculateNumGrad(b2,4,x,y,m);
-//		
-//		double norm = 0;
-//		norm += matrixNorm(djdL, numdL);
-//		norm += matrixNorm(djdW, numdW);
-//		norm += matrixNorm(djdb1, numdb1);
-//		norm += matrixNorm(djdU, numdU);
-//		norm += matrixNorm(djdb2, numdb2);
-//		System.out.println("Norm is:" +Math.sqrt(norm));
 	}
 
 	private double matrixNorm(SimpleMatrix grad, SimpleMatrix numGrad){
