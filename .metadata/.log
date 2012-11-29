@@ -153,6 +153,18 @@ Command-line arguments:  -os macosx -ws cocoa -arch x86_64 -keyring /Users/awni/
 
 !ENTRY org.eclipse.core.net 1 0 2012-11-28 16:13:23.030
 !MESSAGE System property http.nonProxyHosts has been set to local|*.local|169.254/16|*.169.254/16 by an external source. This value will be overwritten using the values from the preferences
+<<<<<<< HEAD
+!SESSION 2012-11-29 13:47:08.506 -----------------------------------------------
+eclipse.buildId=M20120914-1800
+java.version=1.6.0_35
+java.vendor=Apple Inc.
+BootLoader constants: OS=macosx, ARCH=x86_64, WS=cocoa, NL=en_US
+Framework arguments:  -keyring /Users/awni/.eclipse_keyring -showlocation
+Command-line arguments:  -os macosx -ws cocoa -arch x86_64 -keyring /Users/awni/.eclipse_keyring -showlocation
+
+!ENTRY org.eclipse.core.net 1 0 2012-11-29 13:48:01.136
+!MESSAGE System property http.nonProxyHosts has been set to local|*.local|169.254/16|*.169.254/16 by an external source. This value will be overwritten using the values from the preferences
+=======
 
 !ENTRY org.eclipse.jdt.core 4 4 2012-11-28 20:17:43.594
 !MESSAGE Background Indexer Crash Recovery
@@ -169,3 +181,14 @@ java.lang.NegativeArraySizeException
 	at org.eclipse.jdt.internal.core.search.indexing.IndexManager.notifyIdle(IndexManager.java:569)
 	at org.eclipse.jdt.internal.core.search.processing.JobManager.run(JobManager.java:388)
 	at java.lang.Thread.run(Thread.java:680)
+>>>>>>> c1128e5012f5865829b248d205f2caec87b7376c
+!SESSION 2012-11-29 14:02:02.868 -----------------------------------------------
+eclipse.buildId=M20120914-1800
+java.version=1.6.0_35
+java.vendor=Apple Inc.
+BootLoader constants: OS=macosx, ARCH=x86_64, WS=cocoa, NL=en_US
+Framework arguments:  -keyring /Users/awni/.eclipse_keyring -showlocation
+Command-line arguments:  -os macosx -ws cocoa -arch x86_64 -keyring /Users/awni/.eclipse_keyring -showlocation
+
+!ENTRY org.eclipse.core.net 1 0 2012-11-29 14:02:09.006
+!MESSAGE System property http.nonProxyHosts has been set to local|*.local|169.254/16|*.169.254/16 by an external source. This value will be overwritten using the values from the preferences
