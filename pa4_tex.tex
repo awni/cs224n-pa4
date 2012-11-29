@@ -1,0 +1,154 @@
+ \documentclass{article} 
+\usepackage{amsmath}
+\usepackage{amssymb}
+  \begin{document}
+
+\section{Backpropagation}
+We now derive the Backpropagation algorithm for finding the gradients of the cost function of the neural network.  For our parameters \(W\in\mathbb{R}^{H \times nC}\), \( b^{(1)} \in\mathbb{R}^H\), \(U\in\mathbb{R}^H\),\( b^{(2)} \in\mathbb{R}\) and \(L\in\mathbb{R}^{nC \times V}\) the cost function for our neural network is defined as follows.
+
+\begin{equation}
+\begin{split}
+J(\theta) = \frac{1}{m} \sum_{i=1}^m \left[-y ^{(i)} log(h_{\theta}(x^{(i)}))-(1-y^{(i)})log(1-h_{\theta}(x^{(i)}))\right]+\\ \frac{C}{2m} \left[ \sum_{j=1}^{nC} \sum_{k=1}^H W_{k,j}^2 + \sum_{k=1}^H U_{k}^2\right]
+\end{split}
+\end{equation}
+\begin{equation}
+\begin{split}
+h_{\theta}(x^{(i)}) = g\left(U^Tf\left(Wx^{(i)}+b^{(1)}\right)+b^{(2)}\right)
+\end{split}
+\end{equation}
+\begin{equation}
+f(z) = tanh(z) = \frac{e^z - e^{-z}}{e^z + e^{-z}}
+\end{equation}
+\begin{equation}
+g(z) = sigmoid(z) = \frac{1}{1+e^{-z}}
+\end{equation}
+The derivatives of the \(tanh\) and \(sigmoid\) functions \(g\) and \(f\) are given by
+\begin{equation}\label{tanhderiv}
+\frac{d}{dz}f(z) = 1 - \left(\frac{e^z-e^{-z}}{e^z+e^{-z}}\right)^2 = 1- f^2(z)
+\end{equation}
+\begin{equation}\label{sigderiv}
+\frac{d}{dz}g(z) = \frac{1}{1+e^{-z}}\left(1 - \frac{1}{1+e^{-z}}\right) = g(z)(1-g(z))
+\end{equation}
+Notice that the derivatives of both the hyperbolic tangent and logistic functions are defined completely in terms of the functions themselves.  This will simplify deriving the gradients for each parameter.  Since we will implement stochastic gradient descent in order to optimize our cost function with respect to the parameters \(U, b^{(2)}, W, b^{(1)}\) and \(L\) we only need to observe the gradient with respect to these parameters at a single training example at a time.  Thus we find the gradient for the simplified cost function below where \(x\) and \(y\) represent a single training example.
+\begin{equation}\label{cost}
+\begin{split}
+J(\theta) = -ylog(h_{\theta}(x))-(1-y)log(1-h_{\theta}(x))+\\ \frac{C}{2m} \left[ \sum_{j=1}^{nC} \sum_{k=1}^H W_{k,j}^2 + \sum_{k=1}^H U_{k}^2\right]
+\end{split}
+\end{equation}
+We now derive the gradients \(\frac{\partial J}{\partial U}\),\(\frac{\partial J}{\partial b^{(2)}}\), \(\frac{\partial J}{\partial W}\), \(\frac{\partial J}{\partial b^{(1)}}\) and \(\frac{\partial J}{\partial L}\).  In order to simplify the gradient for each parameter notice that the regularization term (the second term in the cost function) does not depend on \(b^{(1)}\), \(b^{(2)}\) or \(L\) thus vanishes for those terms.  Also since the gradient distributes over addition we can take the derivative of this term with respect to \(U\) and \(W\) separately and add it in later.  The gradient of the regularization term for the two parameters is
+\begin{equation}\label{ureg}
+\frac{\partial}{\partial U}\frac{C}{2m} \left[ \sum_{j=1}^{nC} \sum_{k=1}^H W_{k,j}^2 + \sum_{k=1}^H U_{k}^2\right] = \frac{C}{m}U
+\end{equation}
+\begin{equation}\label{wreg}
+\frac{\partial}{\partial W}\frac{C}{2m} \left[ \sum_{j=1}^{nC} \sum_{k=1}^H W_{k,j}^2 + \sum_{k=1}^H U_{k}^2\right] = \frac{C}{m}W
+\end{equation}
+To simplify notation we define \( z^{(1)}, z^{(2)}, a^{(1)}, a^{(2)} \) as follows.
+\begin{equation}
+\begin{aligned}
+z^{(1)} =& Wx + b^{(1)}, \\
+a^{(1)} =& f(z^{(1)}), \\
+z^{(2)} =& U^T a^{(1)} + b^{(2)}, \\
+a^{(2)} =& g(z^{(2)}) \\
+\end{aligned}
+\end{equation}
+Finally we let the even further simplified cost function written in terms of the above defininitions without regularization (as we will add that in later) be defined as
+\begin{equation}\label{simplecost}
+J(U,b^{(2)},W,b^{(1)},L) = -ylog(a^{(2)})-(1-y)log(1-a^{(2)})
+\end{equation}
+First we derive \(\frac{\partial J}{\partial U}\) with respect to \eqref{simplecost}.  Using the chain rule and remembering the derivative of the sigmoid function from \eqref{sigderiv} we find
+\begin{displaymath}
+\begin{aligned}
+\frac{\partial J}{\partial U} =&  \left(\frac{-y}{a^{(2)}}+\frac{(1-y)}{1-a^{(2)}}\right)\frac{\partial a^{(2)}}{\partial z^{(2)}} \frac{\partial z^{(2)}}{\partial U}, \\
+\frac{\partial J}{\partial U} =& \left(\frac{-y}{a^{(2)}}+\frac{(1-y)}{1-a^{(2)}}\right)(a^{(2)})(1-a^{(2)}) \frac{\partial z^{(2)}}{\partial U}, \\
+\frac{\partial J}{\partial U} =& \left(-y(1-a^{(2)})+(1-y)a^{(2)}\right)\frac{\partial z^{(2)}}{\partial U},
+\end{aligned}
+\end{displaymath}
+\begin{equation}\label{partialU}
+\frac{\partial J}{\partial U} = \left(a^{(2)} - y\right)\frac{\partial z^{(2)}}{\partial U}
+\end{equation}
+Now we only need to find the partial \( \frac{\partial z^{(2)}}{\partial U} \) in \eqref{partialU} in order to derive the gradient.
+\begin{equation}\label{dzdu}
+\frac{\partial z^{(2)}}{\partial U} = \frac{\partial }{\partial U}\left(U^Ta^{(1)}+b^{(2)}\right) = (a^{(1)})^T
+\end{equation}
+Putting together \eqref{partialU} and \eqref{dzdu} we arrive at
+\begin{equation}\label{djdu}
+\frac{\partial J}{\partial U} = \left(a^{(2)} - y\right)(a^{(1)})^T
+\end{equation}
+Also using the exact same steps to arrive at \eqref{partialU} we can solve for \( \frac{\partial J}{\partial b^{(2)}}\)
+\begin{equation}\label{djdb2}
+\frac{\partial J}{\partial b^{(2)}} = \left(a^{(2)} - y\right)\frac{\partial z^{(2)}}{\partial b^{(2)}}  = \left(a^{(2)} - y\right)
+\end{equation}
+We find \( \frac{\partial J}{\partial W}\) using the same derivation as in \eqref{partialU} and applying the chain rule again.
+\begin{equation}\label{partialW}
+\frac{\partial J}{\partial W} = \left(a^{(2)} - y\right)\frac{\partial z^{(2)}}{\partial W} = \left(a^{(2)} - y\right)\frac{\partial z^{(2)}}{\partial a^{(1)}}\frac{\partial a^{(1)}}{\partial z^{(1)}}\frac{\partial z^{(1)}}{\partial W}
+\end{equation}
+To simplify the derivation we take all of the partial derivatives in \eqref{partialW} with respect to a single element, \(W_{ij}\).  First notice that only the \(i^{th}\) element of \(a^{(1)}\) and \(z^{(1)}\) depend on the \(ij^{th}\) element of \(W\), thus we have
+\begin{equation}\label{dJdW}
+\frac{\partial J}{\partial W_{ij}} = \left(a^{(2)} - y\right)\frac{\partial z^{(2)}}{\partial a_{i}^{(1)}}\frac{\partial a_{i}^{(1)}}{\partial z_{i}^{(1)}}\frac{\partial z_{i}^{(1)}}{\partial W_{ij}}
+\end{equation}
+Now we can find each partial separately and combine them.
+\begin{equation}\label{dz2da1}
+\frac{\partial z^{(2)}}{\partial a_{i}^{(1)}} = \frac{\partial}{\partial a_{i}^{(1)}}\left(U^Ta^{(1)}+b^{(2)}\right) = U^T_{i}
+\end{equation}
+From the derivative of the hyperbolic tangent function found in \eqref{tanhderiv} we have
+\begin{equation}\label{da1dz1}
+\frac{\partial a_{i}^{(1)}}{\partial z_{i}^{(1)}} = \frac{\partial}{\partial z_{i}^{(1)}}f(z_i^{(1)})  = 1-f(z_i^{(1)})^2 = 1-(a_i^{(1)})^2
+\end{equation}
+\begin{equation}\label{dz1dw}
+\frac{\partial z_{i}^{(1)}}{\partial W_{ij}} = \frac{\partial}{\partial W_{ij}} \left( Wx+b^{(1)} \right) = x_j
+\end{equation}
+Combining \eqref{dJdW}, \eqref{dz2da1}, \eqref{da1dz1} and \eqref{dz1dw} we end up with
+\begin{equation}
+\frac{\partial J}{\partial W_{ij}} = \left(a^{(2)} - y\right) U^T_{i} \left( 1-(a_i^{(1)})^2 \right) x_j 
+\end{equation}
+In order to find the gradient in matrix form we need to introduce new notation.  Let \(\diamond \) be defined as an element-wise multiplication of two matrices or vectors of the same size.  Now we have the full gradient as
+\begin{equation}\label{djdw}
+\frac{\partial J}{\partial W} = \left(a^{(2)} - y\right) U \diamond\left( 1-(a^{(1)})^2 \right) x^T
+\end{equation}
+To find \(\frac{\partial J}{\partial b^{(1)}}\) we apply the same steps we used to arrive at \eqref{dJdW}
+\begin{equation}
+\frac{\partial J}{\partial b^{(1)}_{i}} = \left(a^{(2)} - y\right)\frac{\partial z^{(2)}}{\partial a_{i}^{(1)}}\frac{\partial a_{i}^{(1)}}{\partial z_{i}^{(1)}}\frac{\partial z_{i}^{(1)}}{\partial b_{i}^{(1)}}
+\end{equation}
+\begin{equation}\label{dz1db1}
+\frac{\partial z_{i}^{(1)}}{\partial b_{i}^{(1)}} = \frac{\partial}{\partial b^{(1)}_{i}} \left( Wx+b^{(1)} \right) = 1
+\end{equation}
+We combine \eqref{dJdW}, \eqref{dz2da1}, \eqref{da1dz1} and \eqref{dz1db1} and find
+\begin{equation}\label{djdb1}
+\frac{\partial J}{\partial b^{(1)}} = \left(a^{(2)} - y\right) U \diamond\left( 1-(a^{(1)})^2 \right)
+\end{equation}
+In order to find the last parameter gradient \( \frac{\partial J}{\partial L} \), we find \( \frac{\partial J}{\partial x} \) where \(x\) is the training example and then map this gradient to its corresponding piece of the \( \frac{\partial J}{\partial L} \) gradient.  We use the same steps as \eqref{dJdW} but this time every element of \(a^{(1)} \) and \( z^{(1)}\) depend on the \(i^{th}\) element of \(x\).
+\begin{equation}
+\frac{\partial J}{\partial x_{i}} = \left(a^{(2)} - y\right)\frac{\partial z^{(2)}}{\partial a^{(1)}}\frac{\partial a^{(1)}}{\partial z^{(1)}}\frac{\partial z^{(1)}}{\partial x_{i}}
+\end{equation}
+Letting \( W_{\bullet i} \) designate the \(i^{th}\) column of \(W\),
+\begin{equation}
+\frac{\partial z^{(1)}}{\partial x_i} = \frac{\partial}{\partial x_i} \left( Wx+b^{(1)}\right) = W_{\bullet i}
+\end{equation}
+Using the same results for the partial derivatives from \eqref{dz2da1}, \eqref{da1dz1} and the above two equations we have
+\begin{equation}\label{djdxi}
+\frac{\partial J}{\partial x_i} = \left(a^{(2)} - y\right) \left[U \diamond\left( 1-(a^{(1)})^2 \right)\right]^T W_{\bullet i}
+\end{equation}
+To find \(\frac{\partial J}{\partial x_i}\) in vector form notice that \eqref{djdxi} gives a row vector if we multiply by the full matrix \(W\) thus we simply need the transpose of this row vector to arrive at the column vector gradient for \(x\)
+\begin{equation}\label{djdx}
+\frac{\partial J}{\partial x} = \left(a^{(2)} - y\right) W^T \left[ U \diamond\left( 1-(a^{(1)})^2 \right)\right]
+\end{equation}
+To see how to map \eqref{djdx} back to \( \frac{\partial J}{\partial L}\) notice that \(x\) is an \( nC\) column vector where \(n\) is the vector size of each word and \(C\) is the window size or number of context words in each sample.  This means we have \(C\) columns of \( L \) to update for each training sample.  Thus we can write \(x\) as a \(C\) long vector with each element corresponding to a word vector.
+\begin{displaymath}
+x = \begin{bmatrix}  x_{1}\\  x_{2} \\ \vdots \\ x_{C}\end{bmatrix}
+\end{displaymath}
+Each of these \(C\)  \(n\)-dimensional vectors, \(x_{i} \), correspond to a column of \(L\).  Thus we can update the columns of \(L\) using this breakdown of word vectors of \(x\) and the gradient found in \eqref{djdx}.  In order to do this we must keep track what column each of the word vectors of \(x\) correspond to.
+
+Our final derivations for \(\frac{\partial J}{\partial b^{(1)}}\), \(\frac{\partial J}{\partial b^{(2)}}\) and \(\frac{\partial J}{\partial L}\) are given in \eqref{djdb1}, \eqref{djdb2} and \eqref{djdx} respectively since these gradients don't depend on our regularization term.  To find the final form of \(\frac{\partial J}{\partial W}\) we combine \eqref{wreg} and \eqref{djdw}.  Similarly to find the final form of \(\frac{\partial J}{\partial U}\) we combine \eqref{ureg} and \eqref{djdu}.
+\begin{equation}
+\frac{\partial J}{\partial W} = \left(a^{(2)} - y\right) U \diamond\left( 1-(a^{(1)})^2 \right) x^T +\frac{C}{m}W
+\end{equation}
+\begin{equation}
+\frac{\partial J}{\partial U} = \left(a^{(2)} - y\right)(a^{(1)})^T + \frac{C}{m}U
+\end{equation}
+This completes the derivation of the parameters to the cost function \eqref{cost} for our neural network model.
+
+
+
+
+
+\end{document}
