@@ -1,0 +1,249 @@
+C = 0 W = 1 H = 100 A = 0.01 
+Train F1 score: 0.007683373537032073
+Test F1 score: 0.006955422067657286
+
+C = 0 W = 1 H = 100 A = 0.001 
+Train F1 score: 0.003050421675937556
+Test F1 score: 0.003803486529318542
+
+C = 0 W = 1 H = 100 A = 0.0001 
+Train F1 score: NaN
+Test F1 score: NaN
+
+C = 0 W = 1 H = 200 A = 0.01 
+Train F1 score: 0.003050421675937556
+Test F1 score: 0.003803486529318542
+
+C = 0 W = 1 H = 200 A = 0.001 
+Train F1 score: 0.003050421675937556
+Test F1 score: 0.003803486529318542
+
+C = 0 W = 1 H = 200 A = 0.0001 
+Train F1 score: NaN
+Test F1 score: NaN
+
+C = 0 W = 1 H = 400 A = 0.01 
+Train F1 score: NaN
+Test F1 score: NaN
+
+C = 0 W = 1 H = 400 A = 0.001 
+Train F1 score: 0.003050421675937556
+Test F1 score: 0.003803486529318542
+
+C = 0 W = 1 H = 400 A = 0.0001 
+Train F1 score: NaN
+Test F1 score: NaN
+
+C = 0 W = 1 H = 600 A = 0.01 
+Train F1 score: 0.003050421675937556
+Test F1 score: 0.003803486529318542
+
+C = 0 W = 1 H = 600 A = 0.001 
+Train F1 score: 0.003050421675937556
+Test F1 score: 0.003803486529318542
+
+C = 0 W = 1 H = 600 A = 0.0001 
+Train F1 score: NaN
+Test F1 score: NaN
+
+C = 0 W = 1 H = 800 A = 0.01 
+Train F1 score: 0.003050421675937556
+Test F1 score: 0.003803486529318542
+
+C = 0 W = 1 H = 800 A = 0.001 
+Train F1 score: 0.003050421675937556
+Test F1 score: 0.003803486529318542
+
+C = 0 W = 1 H = 800 A = 0.0001 
+Train F1 score: NaN
+Test F1 score: NaN
+
+C = 0 W = 1 H = 1000 A = 0.01 
+Train F1 score: NaN
+Test F1 score: NaN
+
+C = 0 W = 1 H = 1000 A = 0.001 
+Train F1 score: 0.003050421675937556
+Test F1 score: 0.003803486529318542
+
+C = 0 W = 1 H = 1000 A = 0.0001 
+Train F1 score: NaN
+Test F1 score: NaN
+
+C = 0 W = 3 H = 100 A = 0.01 
+Train F1 score: 0.5601187006517937
+Test F1 score: 0.538385632524176
+
+C = 0 W = 3 H = 100 A = 0.001 
+Train F1 score: 0.47914680648236413
+Test F1 score: 0.462582056892779
+
+C = 0 W = 3 H = 100 A = 0.0001 
+Train F1 score: 0.33629989212513484
+Test F1 score: 0.30398009950248756
+
+C = 0 W = 3 H = 200 A = 0.01 
+Train F1 score: 0.553797980888625
+Test F1 score: 0.5387689848121502
+
+C = 0 W = 3 H = 200 A = 0.001 
+Train F1 score: 0.46379100850546784
+Test F1 score: 0.44068551079456936
+
+C = 0 W = 3 H = 200 A = 0.0001 
+Train F1 score: 0.33122941822173435
+Test F1 score: 0.3052289216912684
+
+C = 0 W = 3 H = 400 A = 0.01 
+Train F1 score: 0.43554052296084295
+Test F1 score: 0.39259971167707836
+
+C = 0 W = 3 H = 400 A = 0.001 
+Train F1 score: 0.483761285027553
+Test F1 score: 0.46734209959042894
+
+C = 0 W = 3 H = 400 A = 0.0001 
+Train F1 score: 0.33832634311963256
+Test F1 score: 0.3167070217917675
+
+C = 0 W = 3 H = 600 A = 0.01 
+Train F1 score: 0.5832307616562454
+Test F1 score: 0.5655498907501821
+
+C = 0 W = 3 H = 600 A = 0.001 
+Train F1 score: 0.5196689595872742
+Test F1 score: 0.522615050365396
+
+C = 0 W = 3 H = 600 A = 0.0001 
+Train F1 score: 0.32440923371124164
+Test F1 score: 0.2999504214179475
+
+C = 0 W = 3 H = 800 A = 0.01 
+Train F1 score: 0.49469407555636413
+Test F1 score: 0.4589944134078213
+
+C = 0 W = 3 H = 800 A = 0.001 
+Train F1 score: 0.47810889270691387
+Test F1 score: 0.455767562879445
+
+C = 0 W = 3 H = 800 A = 0.0001 
+Train F1 score: 0.3339868839158948
+Test F1 score: 0.30968688845401177
+
+C = 0 W = 3 H = 1000 A = 0.01 
+Train F1 score: 0.5463643138507399
+Test F1 score: 0.5307417691392304
+
+C = 0 W = 3 H = 1000 A = 0.001 
+Train F1 score: 0.5046553908875544
+Test F1 score: 0.5042458552365549
+
+C = 0 W = 3 H = 1000 A = 0.0001 
+Train F1 score: 0.3309051665992176
+Test F1 score: 0.3131115459882583
+
+C = 0 W = 5 H = 100 A = 0.01 
+Train F1 score: 0.7274575581986378
+Test F1 score: 0.7188469257434775
+
+C = 0 W = 5 H = 100 A = 0.001 
+Train F1 score: 0.6942522106881969
+Test F1 score: 0.6979655712050078
+
+C = 0 W = 5 H = 100 A = 0.0001 
+Train F1 score: 0.56707082898996
+Test F1 score: 0.5561775289884047
+
+C = 0 W = 5 H = 200 A = 0.01 
+Train F1 score: 0.6821297362504798
+Test F1 score: 0.6609508963367108
+
+C = 0 W = 5 H = 200 A = 0.001 
+Train F1 score: 0.6880327309921582
+Test F1 score: 0.695911563432181
+
+C = 0 W = 5 H = 200 A = 0.0001 
+Train F1 score: 0.5740495254255263
+Test F1 score: 0.5827379803050783
+
+C = 0 W = 5 H = 400 A = 0.01 
+Train F1 score: 0.6700524427270219
+Test F1 score: 0.6468620893173324
+
+C = 0 W = 5 H = 400 A = 0.001 
+Train F1 score: 0.6699231669465221
+Test F1 score: 0.6820494186046512
+
+C = 0 W = 5 H = 400 A = 0.0001 
+Train F1 score: 0.5554305309971601
+Test F1 score: 0.5537124802527645
+
+C = 0 W = 5 H = 600 A = 0.01 
+Train F1 score: 0.6925749719356391
+Test F1 score: 0.6872747961312345
+
+C = 0 W = 5 H = 600 A = 0.001 
+Train F1 score: 0.6829820342339794
+Test F1 score: 0.6938430311231394
+
+C = 0 W = 5 H = 600 A = 0.0001 
+Train F1 score: 0.5345883420276707
+Test F1 score: 0.5306881587104774
+
+C = 0 W = 5 H = 800 A = 0.01 
+Train F1 score: 0.7279966274766967
+Test F1 score: 0.7273337810611149
+
+C = 0 W = 5 H = 800 A = 0.001 
+Train F1 score: 0.6658088781115455
+Test F1 score: 0.6767748840528005
+
+C = 0 W = 5 H = 800 A = 0.0001 
+Train F1 score: 0.562598617987921
+Test F1 score: 0.5530393325387366
+
+C = 0 W = 5 H = 1000 A = 0.01 
+Train F1 score: 0.7202166866480174
+Test F1 score: 0.7232071554064846
+
+C = 0 W = 5 H = 1000 A = 0.001 
+Train F1 score: 0.6696618357487923
+Test F1 score: 0.687118703154959
+
+C = 0 W = 5 H = 1000 A = 0.0001 
+Train F1 score: 0.537757178385711
+Test F1 score: 0.5306710580485796
+
+C = 0 W = 7 H = 100 A = 0.01 
+Train F1 score: 0.7637895164154869
+Test F1 score: 0.7334293948126801
+
+C = 0 W = 7 H = 100 A = 0.001 
+Train F1 score: 0.71633462235058
+Test F1 score: 0.7203610484290921
+
+C = 0 W = 7 H = 100 A = 0.0001 
+Train F1 score: 0.5510502077951253
+Test F1 score: 0.5453803793595758
+
+C = 0 W = 7 H = 200 A = 0.01 
+Train F1 score: 0.791256527565969
+Test F1 score: 0.7597894044093452
+
+C = 0 W = 7 H = 200 A = 0.001 
+Train F1 score: 0.6923718215923301
+Test F1 score: 0.675872364247061
+
+C = 0 W = 7 H = 200 A = 0.0001 
+Train F1 score: 0.5511241667608179
+Test F1 score: 0.5393351228577328
+
+C = 0 W = 7 H = 400 A = 0.01 
+Train F1 score: 0.715034392400917
+Test F1 score: 0.6910505836575874
+---------------------------------
+
+C = 0 W = 7 H = 200 A = 0.01 
+Train F1 score: 0.7671108419139915
+Test F1 score: 0.737198929527208
+
