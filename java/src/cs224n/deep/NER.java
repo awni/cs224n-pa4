@@ -12,11 +12,18 @@ public class NER {
       System.out.println("USAGE: java -cp classes NER ../data/train ../data/dev");
       return;
     }
-
+    
     int windowSize = 5;
     int hiddenSize = 100;
     double learningRate = 0.001;
-
+    double regularization = 0.0;
+    
+    if(args.length > 5){
+        regularization = Double.parseDouble(args[args.length-4]);
+        windowSize = Integer.parseInt(args[args.length-3]);
+        hiddenSize = Integer.parseInt(args[args.length-2]);
+        learningRate = Double.parseDouble(args[args.length-1]);
+    }
     // this reads in the train and test datasets
     List<Datum> trainData = FeatureFactory.readTrainData(args[0]);
     List<Datum> testData = FeatureFactory.readTestData(args[1]);
@@ -27,11 +34,12 @@ public class NER {
     SimpleMatrix allVecs = FeatureFactory.readWordVectors("../data/wordVectors.txt");
 
     // initialize model
-    WindowModel model = new WindowModel(windowSize, hiddenSize, learningRate);
+    WindowModel model = new WindowModel(windowSize, hiddenSize, learningRate, regularization);
     model.initWeights();
-
+    
     // TODO: Implement those two functions
-    model.train(trainData);
+    model.train(trainData, testData);
+    System.out.println("Test data ");
     model.test(testData);
   }
 }

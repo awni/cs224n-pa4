@@ -22,12 +22,12 @@ public class WindowModel {
 	String START = "<s>";
 	String END = "</s>";
 
-	public WindowModel(int _windowSize, int _hiddenSize, double _lr) {
+	public WindowModel(int _windowSize, int _hiddenSize, double _lr, double _reg) {
 		this.windowSize = _windowSize;
 		this.hiddenSize = _hiddenSize;
 		this.wordSize = 50;
 		this.learningRate = _lr;
-		this.C = 0.0;
+		this.C = _reg;
 		// TODO
 	}
 
@@ -84,7 +84,7 @@ public class WindowModel {
 	/**
 	 * Simplest SGD training
 	 */
-	public void train(List<Datum> _trainData) {
+	public void train(List<Datum> _trainData, List<Datum> testData) {
 		// Setup -------------
 		int m = _trainData.size();
 
@@ -93,13 +93,18 @@ public class WindowModel {
 		for(int i=0;i<m;i++){
 			rand.add(i);
 		}
-		//int sampleNum = 0; // temporary index until we setup sgd
 		int itNum = 0;
-		for(int count=0; count<2; count++){
+		for(int count=0; count<3; count++){
 			Collections.shuffle(rand);
 		for(int sampleNum = 0; sampleNum < m; sampleNum++){
-			if(itNum%10000==0) System.out.println("Iter "+itNum);
-			itNum++;
+//			if(itNum%100000==0) {
+//				System.out.println("Iter "+itNum);
+//				System.out.println("Train data ");
+//				test(_trainData);
+//			    System.out.println("Test data ");
+//				test(testData);
+//			}
+//			itNum++;
 			SimpleMatrix x = getWindowedSample(_trainData, rand.get(sampleNum));
 			SimpleMatrix a = tanh((W.mult(x)).plus(b1));
 			SimpleMatrix h = sigmoid(U.mult(a).plus(b2));
@@ -135,9 +140,10 @@ public class WindowModel {
 			updateWindowedSample(_trainData, rand.get(sampleNum), djdL);
 		
 		}
-			
+		  
 		}
-		
+		System.out.println("Train data ");
+		test(_trainData);
 		// run gradient check
 //		SimpleMatrix numdL = calculateNumGrad(x,0,x,y,m);
 //		SimpleMatrix numdW = calculateNumGrad(W,1,x,y,m);
