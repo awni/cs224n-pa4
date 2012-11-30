@@ -35,7 +35,7 @@ public class NER {
 
     // initialize model
 //    WindowModel model = new WindowModel(windowSize, hiddenSize, learningRate, regularization);
-    WindowModel2 model = new WindowModel2(windowSize, hiddenSize, learningRate, regularization);
+    WindowModel model = new WindowModel(windowSize, hiddenSize, learningRate, regularization);
     model.initWeights();
     
     // TODO: Implement those two functions
