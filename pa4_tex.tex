@@ -147,8 +147,29 @@ Our final derivations for \(\frac{\partial J}{\partial b^{(1)}}\), \(\frac{\part
 \end{equation}
 This completes the derivation of the parameters to the cost function \eqref{cost} for our neural network model.
 
+\section{Softmax and Logistic Regression}
 
+We now show that the Softmax classification model with only two classes is equivalent to logistic regression model with a single weight vector.  We begin with the general Sofmax model and setting the number of classes to 2 we then derive logistic regression with a single weight vector.
 
-
+Recall that Sofmax classification is defined as
+\begin{equation}\label{softmax}
+p(y=i|x;\theta) = \phi_{i} = \frac{e^{\theta^T_{i}x}}{\sum_{j=1}^k \theta^T_{j}x}
+\end{equation}
+Thus the hypothesis function \( h_{\theta}(x) \) should output a \(k\)-dimensional vector of probabilities that \(x\) belongs to each class as defined in \eqref{softmax} where \(k\) represents the number of classes.  However, since the probability over all classes must sum to one, we have that \(p(y=k|x;\theta) = 1 - \sum_{i=1}^{k-1} p(y=i|x;\theta) = 1 -\sum_{i=1}^{k-1}  \phi_{i}\).  Since \(p(y=k|x;\theta)\) can be expressed as a function of all other \(k-1\) probabilities, our hypothesis function only needs to output the first \(k-1\) probabilities.
+\begin{equation}
+h_{\theta}(x) = \begin{bmatrix}  \phi_{1}\\  \phi_{2} \\ \vdots \\ \phi_{k-1}\end{bmatrix}
+\end{equation}
+Now we set \(k=2\) since we are considering Softmax with only two classes and we obtain
+\begin{equation}
+\begin{aligned}\label{logderivation}
+h_{\theta}(x) &= \phi_{1} = \frac{e^{\theta^T_{1}x}}{\sum_{j=1}^2 \theta^T_{j}x} \\
+h_{\theta}(x) &= \frac{e^{\theta^T_{1}x}}{e^{\theta^T_{1}x}+e^{\theta^T_{2}x}} \\
+h_{\theta}(x) &= \frac{e^{\theta^T_{1}x}}{e^{\theta^T_{1}x}+e^{\theta^T_{2}x}} * \frac{\frac{1}{e^{\theta^T_{1}x}}}{\frac{1}{e^{\theta^T_{1}x}}} \\
+h_{\theta}(x) &= \frac{1}{1+\frac{e^{\theta^T_{2}x}}{e^{\theta^T_{1}x}}} \\
+h_{\theta}(x) &= \frac{1}{1+e^{\left(\theta_{2}-\theta_{1}\right)^Tx}} \\
+h_{\theta}(x) &= \frac{1}{1+e^{-\left(\theta_{1}-\theta_{2}\right)^Tx}}
+\end{aligned}
+\end{equation}
+We see that the final result derived in \eqref{logderivation} is exactly equivalent to the hypothesis function for   logistic regression with a single weight matrix, namely \(\theta = \theta_{1}-\theta_{2} \).
 
 \end{document}

@@ -3,26 +3,15 @@ addpath('/Users/awni/Desktop/cs224n/homework/pa4/data');
 
 %% Load and process data
 wordVecs = load('wordVectors.txt');
-words = importdata('vocab.txt', '\n');
-train_words = importdata('unique_train_processed', ' ');
-wordVecsToMap = [];
-wordsMapped = [];
+load indices;
+indices = indices(1:10000);
+wordVecs = wordVecs(indices,:);
+%words = importdata('vocab.txt', '\n');
+words = importdata('final_train_words.txt', ' ');
 
-for i=10001:numel(train_words)
-   ind = strmatch(train_words(i), words, 'exact');
-   if length(ind)==1
-     wordVecsToMap = [wordVecsToMap; wordVecs(ind,:)];
-     wordsMapped = [wordsMapped;train_words(i)];
-   end
-end
 
-% add UNK word
-wordVecsToMap = [wordVecs(1,:); wordVecsToMap];
-wordsMapped = [words(1); wordsMapped];
 
 %% Train
-
-
 
 % Set parameters
 no_dims = 2;
@@ -37,8 +26,24 @@ save 'mapped_L_orig'
 
 load mapped_L_orig;
 
-randperm(numel(train_words));
+toPlot = randperm(numel(words));
+toPlot = toPlot(1:1000);
 figure('Color', 'w')        
-scatter(mappedX(:,1), mappedX(:,2), 0.001); axis off
-text(mappedX(:,1), mappedX(:,2), words(:))
+scatter(mappedX(toPlot,1), mappedX(toPlot,2), 0.001); axis off
+text(mappedX(toPlot,1), mappedX(toPlot,2), words(toPlot))
 
+%%Preprocessing already done
+
+% wordVecsToMap = [];
+% wordsMapped = [];
+% 
+% for i=1:numel(train_words)
+%    ind = strmatch(train_words(i), words, 'exact');
+%    if mod(i,1000)==0
+%        disp(i)
+%    end
+%    if length(ind)>0
+%      wordsMapped = [wordsMapped;train_words(i),ind];
+%      wordVecsToMap = [wordVecsToMap; wordVecs(ind,:)];
+%    end
+% end
