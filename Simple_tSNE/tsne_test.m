@@ -8,6 +8,7 @@ indices = indices(1:10000);
 wordVecs = wordVecs(indices,:);
 %words = importdata('vocab.txt', '\n');
 words = importdata('final_train_words.txt', ' ');
+words = words(1:10000);
 
 
 
@@ -27,7 +28,7 @@ save 'mapped_L_orig'
 load mapped_L_orig;
 
 toPlot = randperm(numel(words));
-toPlot = toPlot(1:1000);
+toPlot = toPlot(1:10000);
 figure('Color', 'w')        
 scatter(mappedX(toPlot,1), mappedX(toPlot,2), 0.001); axis off
 text(mappedX(toPlot,1), mappedX(toPlot,2), words(toPlot))
