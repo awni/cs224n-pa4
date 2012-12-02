@@ -13,7 +13,7 @@ public class NER {
       return;
     }
     
-    int windowSize = 9;
+    int windowSize = 11;
     int hiddenSize = 200;
     double learningRate = 0.01;
     double regularization = 0.0;

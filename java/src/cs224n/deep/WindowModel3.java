@@ -103,16 +103,16 @@ public class WindowModel3 {
 			rand.add(i);
 		}
 		int itNum = 0;
-		for(int count=0; count<3; count++){
+		for(int count=0; count<7; count++){
 			Collections.shuffle(rand);
+			if(count>0){
+			System.out.println("Train data ");
+			test(_trainData);
+		    System.out.println("Test data ");
+			test(testData);}
 		for(int sampleNum = 0; sampleNum < m; sampleNum++){
 			if(itNum%10000==0) {
 				System.out.println("Iter "+itNum);
-				if(itNum%100000==0){
-				System.out.println("Train data ");
-				test(_trainData);
-			    System.out.println("Test data ");
-				test(testData);}
 			}
 			itNum++;
 			SimpleMatrix x = getWindowedSample(_trainData, rand.get(sampleNum));
