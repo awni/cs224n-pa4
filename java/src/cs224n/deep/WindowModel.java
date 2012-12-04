@@ -14,9 +14,11 @@ public class WindowModel {
 	// Parameters
 	protected SimpleMatrix W, U;
 	protected SimpleMatrix b1, b2;
+	protected SimpleMatrix LC;
+
 
 	//
-	public int windowSize, wordSize, hiddenSize;
+	public int windowSize, wordSize, hiddenSize, inputSize;
 	double learningRate, C;
 	int UUUNKKK = 0;
 	String START = "<s>";
@@ -27,6 +29,7 @@ public class WindowModel {
 		this.hiddenSize = _hiddenSize;
 		this.wordSize = 50;
 		this.learningRate = _lr;
+		this.inputSize = wordSize+5;
 		this.C = _reg;
 		// TODO
 	}
@@ -38,15 +41,17 @@ public class WindowModel {
 		// TODO
 
 		double root6 = Math.sqrt(6);
-		double wEInit = root6 / Math.sqrt(wordSize * windowSize + hiddenSize);
+		double wEInit = root6 / Math.sqrt(inputSize * windowSize + hiddenSize);
 		double uEInit = root6 / Math.sqrt(hiddenSize + 1);
 
-		W = SimpleMatrix.random(hiddenSize, wordSize * windowSize, -wEInit,
+		W = SimpleMatrix.random(hiddenSize, inputSize * windowSize, -wEInit,
 				wEInit, new Random());
 		b1 = new SimpleMatrix(hiddenSize, 1); // initialized to 0s
 
 		U = SimpleMatrix.random(1, hiddenSize, -uEInit, uEInit, new Random());
 		b2 = new SimpleMatrix(1, 1); // initialized to 0s
+
+		LC = SimpleMatrix.random(5,4,-.001,.001, new Random());
 
 		// initialize with bias inside as the last column
 		// W = SimpleMatrix...
@@ -63,13 +68,18 @@ public class WindowModel {
 			SimpleMatrix x = getWindowedSample(testData, i);
 			SimpleMatrix a = tanh((W.mult(x)).plus(b1));
 			double h = sigmoid(U.mult(a).plus(b2)).get(0,0);
+			Integer vecNum = FeatureFactory.wordToNum.get(testData.get(i).word.toLowerCase());
 			if(h > 0.5){
 				numReturned++;
 				if(getLabel(testData,i)==1){
 					numGold++;
 					numCorrect++;
-				}
+				}//else{
+				//if(vecNum==null) System.out.println("word in unkkk");
+				//System.out.println(testData.get(i).word + " should not be a person");}
 			}else if(getLabel(testData,i)==1){
+				//if(vecNum==null) System.out.println("word in unkkk");
+				//System.out.println(testData.get(i).word + " should be a person");
 				numGold++;
 			}
 		}
@@ -94,18 +104,15 @@ public class WindowModel {
 			rand.add(i);
 		}
 		int itNum = 0;
-		for(int count=0; count<3; count++){
-			//if(count == 3) learningRate=.001;
-			//if(count == 6) learningRate=.0001;
+		for(int count=0; count<7; count++){
 			Collections.shuffle(rand);
+//			if(count>0){
+//			System.out.println("Train data ");
+//			test(_trainData);
+//		    System.out.println("Test data ");
+//			test(testData);}
 		for(int sampleNum = 0; sampleNum < m; sampleNum++){
-			if(itNum%100000==0) {
-				System.out.println("Iter "+itNum);
-				System.out.println("Train data ");
-				test(_trainData);
-			    System.out.println("Test data ");
-				test(testData);
-			}
+			//if(itNum%100000==0) System.out.println("iter is "+itNum);
 			itNum++;
 			SimpleMatrix x = getWindowedSample(_trainData, rand.get(sampleNum));
 			SimpleMatrix a = tanh((W.mult(x)).plus(b1));
@@ -140,7 +147,6 @@ public class WindowModel {
 			W = W.plus(djdW.scale(-learningRate));
 			b1 = b1.plus(djdb1.scale(-learningRate));
 			updateWindowedSample(_trainData, rand.get(sampleNum), djdL);
-		
 
 
 //			// run gradient check
@@ -277,214 +283,107 @@ public class WindowModel {
 		return 1;
 	}
 
-	// Builds windowed input matrix
-	private SimpleMatrix getWindowedSample(List<Datum> data, int sampleNum) {
-
-		int m = data.size();
-		String sample;
-		int range = (windowSize - 1) / 2;
-		SimpleMatrix windowSample = new SimpleMatrix(windowSize * wordSize, 1);
-		// Make input mat with correct window size
-		for (int i = -range; i <= range; i++) {
-
-			if ((sampleNum + i) < 0) {
-				sample = START;
-			} else if ((sampleNum + i) >= m) {
-				sample = END;
-			} else {
-				sample = data.get(sampleNum + i).word.toLowerCase();
+	// Get capitalization
+	private int getCapitalization(String word){
+		boolean firstCapital = false;
+		int numCap = 0;
+		for(int i=0; i<word.length(); i++){
+			char let = word.charAt(i);
+			if(Character.isUpperCase(let)){
+				numCap++;
+				if(i==0)
+					firstCapital = true;
 			}
-
-			Integer vecNum = FeatureFactory.wordToNum.get(sample);
-
-			// If word doesn't exist insert UUUNKK
-			if (vecNum == null)
-				vecNum = UUUNKKK;
-
-			SimpleMatrix wordVec = FeatureFactory.allVecs.extractVector(false,
-					vecNum);
-			windowSample.insertIntoThis((i + range) * wordSize, 0, wordVec);
 		}
-		return windowSample;
-	}
-	
-	// Updates allVecs with djdL
-	private void updateWindowedSample(List<Datum> data, int sampleNum, SimpleMatrix djdL) {
-
-		int m = data.size();
-		String sample;
-		int range = (windowSize - 1) / 2;
-
-		for (int i = -range; i <= range; i++) {
-
-			if ((sampleNum + i) < 0) {
-				sample = START;
-			} else if ((sampleNum + i) >= m) {
-				sample = END;
-			} else {
-				sample = data.get(sampleNum + i).word.toLowerCase();
-			}
-
-			Integer vecNum = FeatureFactory.wordToNum.get(sample);
-
-			// If word doesn't exist insert UUUNKK
-			if (vecNum == null)
-				vecNum = UUUNKKK;
 			
-			SimpleMatrix wordVec = FeatureFactory.allVecs.extractVector(false, vecNum);
-			SimpleMatrix updateVec = djdL.extractMatrix((i + range) * wordSize,(i + range) * wordSize+wordSize,0,1);
-			wordVec = wordVec.plus(updateVec.scale(-learningRate));
-			FeatureFactory.allVecs.insertIntoThis(0, vecNum, wordVec);
-
-		}
+		if(numCap==word.length())
+			return 2;
+		
+		if(numCap==1 && firstCapital)
+			return 1;
+		
+		if(numCap==0)
+			return 0;
+					
+		return 3;
 	}
 	
 	// Builds windowed input matrix
-	private SimpleMatrix getWindowedSampleSentence(List<Datum> data, int sampleNum) {
-		int m = data.size();
-		String sample, prevSample;
-		prevSample = null;
-		int range = (windowSize - 1) / 2;
-		SimpleMatrix windowSample = new SimpleMatrix(windowSize * wordSize, 1);
-		// Make input mat with correct window size
-		for (int i = 1; i <= range; i++) {
-			
-			if ((sampleNum - i) < 0) {
-				sample = START;
-			} else {
-				sample = data.get(sampleNum - i).word;
-			}
-			
-			if(sample.equals('.')){
-				sample = START;
-			}
-			if(prevSample!=null && prevSample.equals(START)){
-				sample = START;
-			}
-			Integer vecNum = FeatureFactory.wordToNum.get(sample);
-			
-			// If word doesn't exist insert UUUNKK
-			if (vecNum == null)
-				vecNum = UUUNKKK;
+		private SimpleMatrix getWindowedSample(List<Datum> data, int sampleNum) {
 
-			SimpleMatrix wordVec = FeatureFactory.allVecs.extractVector(false,
-					vecNum);
-			windowSample.insertIntoThis((range - i) * wordSize, 0, wordVec);
-			prevSample = sample;
+			int m = data.size();
+			String sample;
+			int LCRows = LC.numRows();
+			int range = (windowSize - 1) / 2;
+			SimpleMatrix windowSample = new SimpleMatrix(windowSize * (wordSize+LCRows), 1);
+			// Make input mat with correct window size
+			for (int i = -range; i <= range; i++) {
+				int cap = 0;
+				if ((sampleNum + i) < 0) {
+					sample = START;
+				} else if ((sampleNum + i) >= m) {
+					sample = END;
+				} else {
+					sample = data.get(sampleNum + i).word;
+					cap = getCapitalization(sample);
+					sample = sample.toLowerCase();
+				}
+
+				Integer vecNum = FeatureFactory.wordToNum.get(sample);
+
+				// If word doesn't exist insert UUUNKK
+				if (vecNum == null)
+					vecNum = UUUNKKK;
+
+				SimpleMatrix capVec = LC.extractVector(false, cap);
+				SimpleMatrix wordVec = FeatureFactory.allVecs.extractVector(false,
+						vecNum);
+				windowSample.insertIntoThis((i+range)*(wordSize+LCRows), 0, capVec);
+				windowSample.insertIntoThis((i+range)*(wordSize+LCRows)+LCRows, 0, wordVec);
+			}
+			return windowSample;
 		}
 		
-		sample = data.get(sampleNum).word;
-		Integer num = FeatureFactory.wordToNum.get(sample);
-		if (num == null)
-			num = UUUNKKK;
-		SimpleMatrix wordv = FeatureFactory.allVecs.extractVector(false,
-				num);
-		windowSample.insertIntoThis((range) * wordSize, 0, wordv);
+		// Updates allVecs with djdL
+		private void updateWindowedSample(List<Datum> data, int sampleNum, SimpleMatrix djdL) {
 
-		
-		for (int i = 1; i <= range; i++) {
-			
-			if ((sampleNum + i) >= m) {
-				sample = END;
-			} else {
-				sample = data.get(sampleNum + i).word;
-			}
-			
-			if(sample.equals('.')){
-				sample = END;
-			}
-			if(prevSample.equals(END)){
-				sample = END;
-			}
-			Integer vecNum = FeatureFactory.wordToNum.get(sample);
-			
-			// If word doesn't exist insert UUUNKK
-			if (vecNum == null)
-				vecNum = UUUNKKK;
+			int m = data.size();
+			String sample;
+			int range = (windowSize - 1) / 2;
+			int LCRows = LC.numRows();
 
-			SimpleMatrix wordVec = FeatureFactory.allVecs.extractVector(false,
-					vecNum);
-			windowSample.insertIntoThis((range + i) * wordSize, 0, wordVec);
-			prevSample = sample;
-		}
-		
-		
-		return windowSample;
-	}
-	
-	// Builds windowed input matrix
-	private void updateWindowedSampleSentence(List<Datum> data, int sampleNum, SimpleMatrix djdL) {
-		int m = data.size();
-		String sample, prevSample;
-		prevSample = null;
-		int range = (windowSize - 1) / 2;
-		// Make input mat with correct window size
-		for (int i = 1; i <= range; i++) {
-			if ((sampleNum - i) < 0) {
-				sample = START;
-			} else {
-				sample = data.get(sampleNum - i).word;
-			}
-			if(sample.equals('.')){
-				sample = START;
-			}
-			if(prevSample!=null && prevSample.equals(START)){
-				sample = START;
-			}
-			Integer vecNum = FeatureFactory.wordToNum.get(sample);
-			
-			// If word doesn't exist insert UUUNKK
-			if (vecNum == null)
-				vecNum = UUUNKKK;
+			for (int i = -range; i <= range; i++) {
+				int cap = 0;
+				if ((sampleNum + i) < 0) {
+					sample = START;
+				} else if ((sampleNum + i) >= m) {
+					sample = END;
+				} else {
+					sample = data.get(sampleNum + i).word;
+					cap = getCapitalization(sample);
+					sample = sample.toLowerCase();
+				}
 
-			SimpleMatrix wordVec = FeatureFactory.allVecs.extractVector(false,
-					vecNum);
-			prevSample = sample;
-			
-			SimpleMatrix updateVec = djdL.extractMatrix((range - i) * wordSize,(range - i) * wordSize+wordSize,0,1);
-			wordVec = wordVec.plus(updateVec.scale(-learningRate));
-			FeatureFactory.allVecs.insertIntoThis(0, vecNum, wordVec);
+				Integer vecNum = FeatureFactory.wordToNum.get(sample);
 
-		}
-		
-		sample = data.get(sampleNum).word;
-		Integer num = FeatureFactory.wordToNum.get(sample);
-		if (num == null)
-			num = UUUNKKK;
-		SimpleMatrix wordv = FeatureFactory.allVecs.extractVector(false,
-				num);
+				// If word doesn't exist insert UUUNKK
+				if (vecNum == null)
+					vecNum = UUUNKKK;
+				
+				SimpleMatrix wordVec = FeatureFactory.allVecs.extractVector(false, vecNum);
+				SimpleMatrix capVec = LC.extractVector(false, cap);
+				
+				SimpleMatrix updateCapVec = djdL.extractMatrix((i + range) * (wordSize+LCRows),(i + range) * (wordSize+LCRows)+LCRows,0,1);
+				SimpleMatrix updateWordVec = djdL.extractMatrix((i + range) * (wordSize+LCRows)+LCRows,(i + range) * (wordSize+LCRows)+LCRows+wordSize,0,1);
+				
+				capVec = capVec.plus(updateCapVec.scale(-learningRate));
+				wordVec = wordVec.plus(updateWordVec.scale(-learningRate));
+				
+				FeatureFactory.allVecs.insertIntoThis(0, vecNum, wordVec);
+				LC.insertIntoThis(0, cap, capVec);
 
-		SimpleMatrix update = djdL.extractMatrix(range* wordSize,range* wordSize+wordSize,0,1);
-		wordv = wordv.plus(update.scale(-learningRate));
-		FeatureFactory.allVecs.insertIntoThis(0, num, wordv);
-		
-		for (int i = 1; i <= range; i++) {
-			if ((sampleNum + i) >= m) {
-				sample = END;
-			} else {
-				sample = data.get(sampleNum + i).word;
 			}
-			if(sample.equals('.')){
-				sample = END;
-			}
-			if(prevSample.equals(END)){
-				sample = END;
-			}
-			Integer vecNum = FeatureFactory.wordToNum.get(sample);
-			
-			// If word doesn't exist insert UUUNKK
-			if (vecNum == null)
-				vecNum = UUUNKKK;
+		} 
 
-			SimpleMatrix wordVec = FeatureFactory.allVecs.extractVector(false,
-					vecNum);
-			prevSample = sample;
-			SimpleMatrix updateVec = djdL.extractMatrix((range + i) * wordSize,(range + i) * wordSize+wordSize,0,1);
-			wordVec = wordVec.plus(updateVec.scale(-learningRate));
-			FeatureFactory.allVecs.insertIntoThis(0, vecNum, wordVec);
-
-		}
-		
-	}
 
 }

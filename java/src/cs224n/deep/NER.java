@@ -35,12 +35,12 @@ public class NER {
 
     // initialize model
 //    WindowModel model = new WindowModel(windowSize, hiddenSize, learningRate, regularization);
-    WindowModel4 model = new WindowModel4(windowSize, hiddenSize, learningRate, regularization);
+    WindowModel model = new WindowModel(windowSize, hiddenSize, learningRate, regularization);
     model.initWeights();
     
     // TODO: Implement those two functions
     model.train(trainData, testData);
-    System.out.print("Test ");
-    model.test(testData);
+//    System.out.print("Test ");
+//    model.test(testData);
   }
 }
