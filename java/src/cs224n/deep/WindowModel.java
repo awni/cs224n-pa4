@@ -119,7 +119,7 @@ public class WindowModel {
 			CommonOps.add(aprime.getMatrix(), 1);
 	
 			// dj/dU
-			SimpleMatrix djdU = a.transpose().scale(djdh).plus(U.scale(C / m));
+			SimpleMatrix djdU = a.transpose().scale(djdh).plus(U.scale(C));
 	
 			// dj/db2
 			double[][] doubledjdb2 = { { djdh } };
@@ -129,7 +129,7 @@ public class WindowModel {
 			SimpleMatrix djdb1 = U.transpose().elementMult(aprime).scale(djdh);
 	
 			// dj/dW
-			SimpleMatrix djdW = djdb1.mult(x.transpose()).plus(W.scale(C / m));
+			SimpleMatrix djdW = djdb1.mult(x.transpose()).plus(W.scale(C));
 	
 			// dj/dL
 			SimpleMatrix djdL = W.transpose().mult(djdb1);
@@ -224,7 +224,7 @@ public class WindowModel {
 		double cost = -y * Math.log(h) - (1 - y) * Math.log(1 - h);
 		// with regulartization term
 		cost = cost
-				+ (C / (2 * m))
+				+ (C / (2))
 				* (W.elementMult(W).elementSum() + U.elementMult(U)
 						.elementSum());
 		return cost;

@@ -13,10 +13,10 @@ public class NER {
       return;
     }
     
-    int windowSize = 11;
+    int windowSize = 5;
     int hiddenSize = 200;
     double learningRate = 0.01;
-    double regularization = 0.0;
+    double regularization = 0.1;
     
     if(args.length > 5){
         regularization = Double.parseDouble(args[args.length-4]);
@@ -35,7 +35,7 @@ public class NER {
 
     // initialize model
 //    WindowModel model = new WindowModel(windowSize, hiddenSize, learningRate, regularization);
-    WindowModel3 model = new WindowModel3(windowSize, hiddenSize, learningRate, regularization);
+    WindowModel4 model = new WindowModel4(windowSize, hiddenSize, learningRate, regularization);
     model.initWeights();
     
     // TODO: Implement those two functions

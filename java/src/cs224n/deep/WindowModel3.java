@@ -55,7 +55,7 @@ public class WindowModel3 {
 		U = SimpleMatrix.random(1, hiddenSize, -uEInit, uEInit, new Random());
 		b3 = new SimpleMatrix(1, 1); // initialized to 0s
 
-		LC = new SimpleMatrix(5,4);
+		LC = SimpleMatrix.random(5,4,-.001,.001, new Random());
 		// initialize with bias inside as the last column
 		// W = SimpleMatrix...
 		// U for the score
@@ -103,7 +103,7 @@ public class WindowModel3 {
 			rand.add(i);
 		}
 		int itNum = 0;
-		for(int count=0; count<7; count++){
+		for(int count=0; count<6; count++){
 			Collections.shuffle(rand);
 			if(count>0){
 			System.out.println("Train data ");
@@ -130,7 +130,7 @@ public class WindowModel3 {
 			CommonOps.add(a1prime.getMatrix(), 1);
 	
 			// dj/dU
-			SimpleMatrix djdU = a2.transpose().scale(djdh).plus(U.scale(C / m));
+			SimpleMatrix djdU = a2.transpose().scale(djdh).plus(U.scale(C));
 	
 			// dj/db3
 			double[][] doubledjdb3 = { { djdh } };
@@ -140,13 +140,13 @@ public class WindowModel3 {
 			SimpleMatrix djdb2 = U.transpose().elementMult(a2prime).scale(djdh);
 			
 			// dj/dW2
-			SimpleMatrix djdW2 = djdb2.mult(a1.transpose()).plus(W2.scale(C / m));;
+			SimpleMatrix djdW2 = djdb2.mult(a1.transpose()).plus(W2.scale(C));;
 			
 			// dj/db1
 			SimpleMatrix djdb1 = W2.transpose().mult(djdb2).elementMult(a1prime);
 	
 			// dj/dW1
-			SimpleMatrix djdW1 = djdb1.mult(x.transpose()).plus(W1.scale(C / m));
+			SimpleMatrix djdW1 = djdb1.mult(x.transpose()).plus(W1.scale(C));
 	
 			// dj/dL
 			SimpleMatrix djdL = W1.transpose().mult(djdb1);
@@ -256,7 +256,7 @@ public class WindowModel3 {
 		double cost = -y * Math.log(h) - (1 - y) * Math.log(1 - h);
 		// with regulartization term
 		cost = cost
-				+ (C / (2 * m))
+				+ (C / (2))
 				* (W1.elementMult(W1).elementSum() +W2.elementMult(W2).elementSum()+ U.elementMult(U)
 						.elementSum());
 		return cost;

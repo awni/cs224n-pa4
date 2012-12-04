@@ -51,6 +51,8 @@ public class WindowModel4 {
 		U = SimpleMatrix.random(1, hiddenSize, -uEInit, uEInit, new Random());
 		b2 = new SimpleMatrix(1, 1); // initialized to 0s
 
+		LC = SimpleMatrix.random(5,4,-.001,.001, new Random());
+
 		// initialize with bias inside as the last column
 		// W = SimpleMatrix...
 		// U for the score
@@ -66,13 +68,18 @@ public class WindowModel4 {
 			SimpleMatrix x = getWindowedSample(testData, i);
 			SimpleMatrix a = tanh((W.mult(x)).plus(b1));
 			double h = sigmoid(U.mult(a).plus(b2)).get(0,0);
+			Integer vecNum = FeatureFactory.wordToNum.get(testData.get(i).word.toLowerCase());
 			if(h > 0.5){
 				numReturned++;
 				if(getLabel(testData,i)==1){
 					numGold++;
 					numCorrect++;
-				}
+				}//else{
+				//if(vecNum==null) System.out.println("word in unkkk");
+				//System.out.println(testData.get(i).word + " should not be a person");}
 			}else if(getLabel(testData,i)==1){
+				//if(vecNum==null) System.out.println("word in unkkk");
+				//System.out.println(testData.get(i).word + " should be a person");
 				numGold++;
 			}
 		}
@@ -97,9 +104,15 @@ public class WindowModel4 {
 			rand.add(i);
 		}
 		int itNum = 0;
-		for(int count=0; count<4; count++){
+		for(int count=0; count<7; count++){
 			Collections.shuffle(rand);
+//			if(count>0){
+//			System.out.println("Train data ");
+//			test(_trainData);
+//		    System.out.println("Test data ");
+//			test(testData);}
 		for(int sampleNum = 0; sampleNum < m; sampleNum++){
+			//if(itNum%100000==0) System.out.println("iter is "+itNum);
 			itNum++;
 			SimpleMatrix x = getWindowedSample(_trainData, rand.get(sampleNum));
 			SimpleMatrix a = tanh((W.mult(x)).plus(b1));
@@ -113,7 +126,7 @@ public class WindowModel4 {
 			CommonOps.add(aprime.getMatrix(), 1);
 	
 			// dj/dU
-			SimpleMatrix djdU = a.transpose().scale(djdh).plus(U.scale(C / m));
+			SimpleMatrix djdU = a.transpose().scale(djdh).plus(U.scale(C));
 	
 			// dj/db2
 			double[][] doubledjdb2 = { { djdh } };
@@ -123,7 +136,7 @@ public class WindowModel4 {
 			SimpleMatrix djdb1 = U.transpose().elementMult(aprime).scale(djdh);
 	
 			// dj/dW
-			SimpleMatrix djdW = djdb1.mult(x.transpose()).plus(W.scale(C / m));
+			SimpleMatrix djdW = djdb1.mult(x.transpose()).plus(W.scale(C));
 	
 			// dj/dL
 			SimpleMatrix djdL = W.transpose().mult(djdb1);
@@ -134,7 +147,6 @@ public class WindowModel4 {
 			W = W.plus(djdW.scale(-learningRate));
 			b1 = b1.plus(djdb1.scale(-learningRate));
 			updateWindowedSample(_trainData, rand.get(sampleNum), djdL);
-		
 
 
 //			// run gradient check
@@ -218,7 +230,7 @@ public class WindowModel4 {
 		double cost = -y * Math.log(h) - (1 - y) * Math.log(1 - h);
 		// with regulartization term
 		cost = cost
-				+ (C / (2 * m))
+				+ (C / (2))
 				* (W.elementMult(W).elementSum() + U.elementMult(U)
 						.elementSum());
 		return cost;
