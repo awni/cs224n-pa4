@@ -94,17 +94,13 @@ public class WindowModel_noCap {
 			rand.add(i);
 		}
 		int itNum = 0;
-		for(int count=0; count<3; count++){
+		for(int count=0; count<4; count++){
 			//if(count == 3) learningRate=.001;
 			//if(count == 6) learningRate=.0001;
 			Collections.shuffle(rand);
 		for(int sampleNum = 0; sampleNum < m; sampleNum++){
 			if(itNum%100000==0) {
 				System.out.println("Iter "+itNum);
-				System.out.println("Train data ");
-				test(_trainData);
-			    System.out.println("Test data ");
-				test(testData);
 			}
 			itNum++;
 			SimpleMatrix x = getWindowedSample(_trainData, rand.get(sampleNum));
@@ -158,10 +154,13 @@ public class WindowModel_noCap {
 //			norm += matrixNorm(djdb2, numdb2);
 //			System.out.println("Norm is:" +Math.sqrt(norm));
 		}
-		  
+			System.out.println("Train data ");
+			test(_trainData);
+		    System.out.println("Test data ");
+			test(testData);
 		}
-		System.out.print("Train ");
-		test(_trainData);
+
+
 	}
 
 	private double matrixNorm(SimpleMatrix grad, SimpleMatrix numGrad){
@@ -352,7 +351,7 @@ public class WindowModel_noCap {
 			if ((sampleNum - i) < 0) {
 				sample = START;
 			} else {
-				sample = data.get(sampleNum - i).word;
+				sample = data.get(sampleNum - i).word.toLowerCase();
 			}
 			
 			if(sample.equals('.')){
@@ -373,7 +372,7 @@ public class WindowModel_noCap {
 			prevSample = sample;
 		}
 		
-		sample = data.get(sampleNum).word;
+		sample = data.get(sampleNum).word.toLowerCase();
 		Integer num = FeatureFactory.wordToNum.get(sample);
 		if (num == null)
 			num = UUUNKKK;
@@ -387,7 +386,7 @@ public class WindowModel_noCap {
 			if ((sampleNum + i) >= m) {
 				sample = END;
 			} else {
-				sample = data.get(sampleNum + i).word;
+				sample = data.get(sampleNum + i).word.toLowerCase();
 			}
 			
 			if(sample.equals('.')){
@@ -423,7 +422,7 @@ public class WindowModel_noCap {
 			if ((sampleNum - i) < 0) {
 				sample = START;
 			} else {
-				sample = data.get(sampleNum - i).word;
+				sample = data.get(sampleNum - i).word.toLowerCase();
 			}
 			if(sample.equals('.')){
 				sample = START;
@@ -447,7 +446,7 @@ public class WindowModel_noCap {
 
 		}
 		
-		sample = data.get(sampleNum).word;
+		sample = data.get(sampleNum).word.toLowerCase();
 		Integer num = FeatureFactory.wordToNum.get(sample);
 		if (num == null)
 			num = UUUNKKK;
@@ -462,7 +461,7 @@ public class WindowModel_noCap {
 			if ((sampleNum + i) >= m) {
 				sample = END;
 			} else {
-				sample = data.get(sampleNum + i).word;
+				sample = data.get(sampleNum + i).word.toLowerCase();
 			}
 			if(sample.equals('.')){
 				sample = END;

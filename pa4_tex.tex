@@ -32,15 +32,15 @@ The derivatives of the \(tanh\) and \(sigmoid\) functions \(g\) and \(f\) are gi
 Notice that the derivatives of both the hyperbolic tangent and logistic functions are defined completely in terms of the functions themselves.  This will simplify deriving the gradients for each parameter.  Since we will implement stochastic gradient descent in order to optimize our cost function with respect to the parameters \(U, b^{(2)}, W, b^{(1)}\) and \(L\) we only need to observe the gradient with respect to these parameters at a single training example at a time.  Thus we find the gradient for the simplified cost function below where \(x\) and \(y\) represent a single training example.
 \begin{equation}\label{cost}
 \begin{split}
-J(\theta) = -ylog(h_{\theta}(x))-(1-y)log(1-h_{\theta}(x))+\\ \frac{C}{2m} \left[ \sum_{j=1}^{nC} \sum_{k=1}^H W_{k,j}^2 + \sum_{k=1}^H U_{k}^2\right]
+J(\theta) = -ylog(h_{\theta}(x))-(1-y)log(1-h_{\theta}(x))+\\ \frac{C}{2} \left[ \sum_{j=1}^{nC} \sum_{k=1}^H W_{k,j}^2 + \sum_{k=1}^H U_{k}^2\right]
 \end{split}
 \end{equation}
 We now derive the gradients \(\frac{\partial J}{\partial U}\),\(\frac{\partial J}{\partial b^{(2)}}\), \(\frac{\partial J}{\partial W}\), \(\frac{\partial J}{\partial b^{(1)}}\) and \(\frac{\partial J}{\partial L}\).  In order to simplify the gradient for each parameter notice that the regularization term (the second term in the cost function) does not depend on \(b^{(1)}\), \(b^{(2)}\) or \(L\) thus vanishes for those terms.  Also since the gradient distributes over addition we can take the derivative of this term with respect to \(U\) and \(W\) separately and add it in later.  The gradient of the regularization term for the two parameters is
 \begin{equation}\label{ureg}
-\frac{\partial}{\partial U}\frac{C}{2m} \left[ \sum_{j=1}^{nC} \sum_{k=1}^H W_{k,j}^2 + \sum_{k=1}^H U_{k}^2\right] = \frac{C}{m}U
+\frac{\partial}{\partial U}\frac{C}{2} \left[ \sum_{j=1}^{nC} \sum_{k=1}^H W_{k,j}^2 + \sum_{k=1}^H U_{k}^2\right] = CU
 \end{equation}
 \begin{equation}\label{wreg}
-\frac{\partial}{\partial W}\frac{C}{2m} \left[ \sum_{j=1}^{nC} \sum_{k=1}^H W_{k,j}^2 + \sum_{k=1}^H U_{k}^2\right] = \frac{C}{m}W
+\frac{\partial}{\partial W}\frac{C}{2} \left[ \sum_{j=1}^{nC} \sum_{k=1}^H W_{k,j}^2 + \sum_{k=1}^H U_{k}^2\right] = CW
 \end{equation}
 To simplify notation we define \( z^{(1)}, z^{(2)}, a^{(1)}, a^{(2)} \) as follows.
 \begin{equation}
@@ -140,10 +140,10 @@ Each of these \(C\)  \(n\)-dimensional vectors, \(x_{i} \), correspond to a colu
 
 Our final derivations for \(\frac{\partial J}{\partial b^{(1)}}\), \(\frac{\partial J}{\partial b^{(2)}}\) and \(\frac{\partial J}{\partial L}\) are given in \eqref{djdb1}, \eqref{djdb2} and \eqref{djdx} respectively since these gradients don't depend on our regularization term.  To find the final form of \(\frac{\partial J}{\partial W}\) we combine \eqref{wreg} and \eqref{djdw}.  Similarly to find the final form of \(\frac{\partial J}{\partial U}\) we combine \eqref{ureg} and \eqref{djdu}.
 \begin{equation}
-\frac{\partial J}{\partial W} = \left(a^{(2)} - y\right) U \diamond\left( 1-(a^{(1)})^2 \right) x^T +\frac{C}{m}W
+\frac{\partial J}{\partial W} = \left(a^{(2)} - y\right) U \diamond\left( 1-(a^{(1)})^2 \right) x^T +CW
 \end{equation}
 \begin{equation}
-\frac{\partial J}{\partial U} = \left(a^{(2)} - y\right)(a^{(1)})^T + \frac{C}{m}U
+\frac{\partial J}{\partial U} = \left(a^{(2)} - y\right)(a^{(1)})^T + CU
 \end{equation}
 This completes the derivation of the parameters to the cost function \eqref{cost} for our neural network model.
 

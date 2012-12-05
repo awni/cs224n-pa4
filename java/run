@@ -1,4 +1,4 @@
 #!/bin/sh
 
 ant
-java -cp classes -Xmx1G cs224n.deep.NER ../data/train ../data/dev -print
+java -cp extlib/ejml.jar:classes -Xmx4G cs224n.deep.NER ../data/train ../data/dev -print

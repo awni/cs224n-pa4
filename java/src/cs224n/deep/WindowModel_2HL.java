@@ -93,22 +93,39 @@ public class WindowModel_2HL {
 		BufferedWriter out = new BufferedWriter(new FileWriter(dev_result));
 		
 		for(int i=0; i<m; i++){
+			if(testData.get(i).word.equals(START)){
+				out.write("\n");
+				continue;
+			}
 			SimpleMatrix x = getWindowedSample(testData, i);
 			SimpleMatrix a1 = tanh((W1.mult(x)).plus(b1));
 			SimpleMatrix a2 = tanh((W2.mult(a1)).plus(b2));
 			double h = sigmoid(U.mult(a2).plus(b3)).get(0, 0);
+			out.write(testData.get(i).word);
+			
+			//TODO comment before submit. Writes ground truth for perl script.
+			if(getLabel(testData,i)==1){
+				out.write("\tPERSON");
+			}else{
+				out.write("\tO");
+			}
+
 			if(h > 0.5){
 				numReturned++;
+				out.write("\tPERSON\n");
 				if(getLabel(testData,i)==1){
 					numGold++;
 					numCorrect++;
 				}
-				out.write(testData.get(i).word+" PERSON\n");
-			}else if(getLabel(testData,i)==1){
-				out.write(testData.get(i).word+" O\n");
-				numGold++;
+			}else{
+				out.write("\tO\n");
+				if(getLabel(testData,i)==1){
+					numGold++;
+				}
 			}
+			
 		}
+		out.close();
 		double precision = numCorrect/numReturned;
 		double recall = numCorrect/numGold;
 		
@@ -121,6 +138,8 @@ public class WindowModel_2HL {
 	/**
 	 * Simplest SGD training
 	 */
+	
+	//TODO remove test param and remove testing of data in this function
 	public void train(List<Datum> _trainData, List<Datum> testData) {
 		// Setup -------------
 		int m = _trainData.size();
@@ -133,7 +152,7 @@ public class WindowModel_2HL {
 		int itNum = 0;
 		double F1 = 0;
 		double currF1;
-		for(int count=0; count<6; count++){
+		for(int count=0; count<7; count++){
 			Collections.shuffle(rand);
 
 		for(int sampleNum = 0; sampleNum < m; sampleNum++){
