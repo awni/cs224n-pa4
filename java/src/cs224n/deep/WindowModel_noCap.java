@@ -60,7 +60,7 @@ public class WindowModel_noCap {
 		double numCorrect, numReturned, numGold;
 		numCorrect = numReturned = numGold = 0;
 		for(int i=0; i<m; i++){
-			SimpleMatrix x = getWindowedSample(testData, i);
+			SimpleMatrix x = getWindowedSampleSentence(testData, i);
 			SimpleMatrix a = tanh((W.mult(x)).plus(b1));
 			double h = sigmoid(U.mult(a).plus(b2)).get(0,0);
 			if(h > 0.5){
@@ -103,7 +103,7 @@ public class WindowModel_noCap {
 				System.out.println("Iter "+itNum);
 			}
 			itNum++;
-			SimpleMatrix x = getWindowedSample(_trainData, rand.get(sampleNum));
+			SimpleMatrix x = getWindowedSampleSentence(_trainData, rand.get(sampleNum));
 			SimpleMatrix a = tanh((W.mult(x)).plus(b1));
 			SimpleMatrix h = sigmoid(U.mult(a).plus(b2));
 			// Calculate derivatives
@@ -135,7 +135,7 @@ public class WindowModel_noCap {
 			b2 = b2.plus(djdb2.scale(-learningRate));
 			W = W.plus(djdW.scale(-learningRate));
 			b1 = b1.plus(djdb1.scale(-learningRate));
-			updateWindowedSample(_trainData, rand.get(sampleNum), djdL);
+			updateWindowedSampleSentence(_trainData, rand.get(sampleNum), djdL);
 		
 
 

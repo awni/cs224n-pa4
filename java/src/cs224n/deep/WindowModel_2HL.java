@@ -152,11 +152,13 @@ public class WindowModel_2HL {
 		int itNum = 0;
 		double F1 = 0;
 		double currF1;
-		for(int count=0; count<7; count++){
+		for(int count=0; count<10; count++){
 			Collections.shuffle(rand);
-
+			if(count>6) learningRate=.001;
+			if(count>7) learningRate=.0001;
+			
 		for(int sampleNum = 0; sampleNum < m; sampleNum++){
-			if(itNum%10000==0) {
+			if(itNum%100000==0) {
 				System.out.println("Iter "+itNum);
 			}
 			itNum++;
@@ -490,5 +492,191 @@ public class WindowModel_2HL {
 			LC.insertIntoThis(0, cap, capVec);
 
 		}
+		
 	} 
+	// Builds windowed input matrix
+	private SimpleMatrix getWindowedSampleSentence(List<Datum> data, int sampleNum) {
+		int m = data.size();
+		String sample, prevSample;
+		prevSample = null;
+		int range = (windowSize - 1) / 2;
+		int LCRows = LC.numRows();
+
+		SimpleMatrix windowSample = new SimpleMatrix(windowSize * (wordSize+LCRows), 1);
+		int cap = 0;
+
+		// Make input mat with correct window size
+		for (int i = 1; i <= range; i++) {
+			
+			if ((sampleNum - i) < 0) {
+				sample = START;
+			} else {
+				sample = data.get(sampleNum - i).word;
+				cap = getCapitalization(sample);
+				sample = sample.toLowerCase();
+			}
+			
+			if(sample.equals('.')){
+				sample = START;
+			}
+			if(prevSample!=null && prevSample.equals(START)){
+				sample = START;
+			}
+			Integer vecNum = FeatureFactory.wordToNum.get(sample);
+			
+			// If word doesn't exist insert UUUNKK
+			if (vecNum == null)
+				vecNum = UUUNKKK;
+
+			SimpleMatrix capVec = LC.extractVector(false, cap);
+			SimpleMatrix wordVec = FeatureFactory.allVecs.extractVector(false,
+					vecNum);
+			windowSample.insertIntoThis((range-i)*(wordSize+LCRows), 0, capVec);
+			windowSample.insertIntoThis((range-i)*(wordSize+LCRows)+LCRows, 0, wordVec);
+			prevSample = sample;
+		}
+		
+		
+		sample = data.get(sampleNum).word;
+		cap = getCapitalization(sample);
+		sample = sample.toLowerCase();
+		Integer num = FeatureFactory.wordToNum.get(sample);
+		if (num == null)
+			num = UUUNKKK;
+		SimpleMatrix capV = LC.extractVector(false, cap);
+		SimpleMatrix wordV = FeatureFactory.allVecs.extractVector(false,
+				num);
+		windowSample.insertIntoThis((range)*(wordSize+LCRows), 0, capV);
+		windowSample.insertIntoThis((range)*(wordSize+LCRows)+LCRows, 0, wordV);
+
+		
+		for (int i = 1; i <= range; i++) {
+			
+			if ((sampleNum + i) >= m) {
+				sample = END;
+			} else {
+				sample = data.get(sampleNum).word;
+				cap = getCapitalization(sample);
+				sample = sample.toLowerCase();			}
+			
+			if(sample.equals('.')){
+				sample = END;
+			}
+			if(prevSample.equals(END)){
+				sample = END;
+			}
+			Integer vecNum = FeatureFactory.wordToNum.get(sample);
+			
+			// If word doesn't exist insert UUUNKK
+			if (vecNum == null)
+				vecNum = UUUNKKK;
+
+			SimpleMatrix capVec = LC.extractVector(false, cap);
+			SimpleMatrix wordVec = FeatureFactory.allVecs.extractVector(false,
+					vecNum);
+			windowSample.insertIntoThis((range+i)*(wordSize+LCRows), 0, capVec);
+			windowSample.insertIntoThis((range+i)*(wordSize+LCRows)+LCRows, 0, wordVec);
+			prevSample = sample;
+		}
+		
+		
+		return windowSample;
+	}
+	
+	// Builds windowed input matrix
+	private void updateWindowedSampleSentence(List<Datum> data, int sampleNum, SimpleMatrix djdL) {
+		int m = data.size();
+		String sample, prevSample;
+		prevSample = null;
+		int range = (windowSize - 1) / 2;
+		int cap = 0;
+		int LCRows = LC.numRows();
+		// Make input mat with correct window size
+		for (int i = 1; i <= range; i++) {
+			if ((sampleNum - i) < 0) {
+				sample = START;
+			} else {
+				sample = data.get(sampleNum).word;
+				cap = getCapitalization(sample);
+				sample = sample.toLowerCase();			}
+			if(sample.equals('.')){
+				sample = START;
+			}
+			if(prevSample!=null && prevSample.equals(START)){
+				sample = START;
+			}
+			Integer vecNum = FeatureFactory.wordToNum.get(sample);
+			
+			// If word doesn't exist insert UUUNKK
+			if (vecNum == null)
+				vecNum = UUUNKKK;
+			
+			SimpleMatrix wordVec = FeatureFactory.allVecs.extractVector(false, vecNum);
+			SimpleMatrix capVec = LC.extractVector(false, cap);
+			
+			SimpleMatrix updateCapVec = djdL.extractMatrix((range-i) * (wordSize+LCRows),(range-i) * (wordSize+LCRows)+LCRows,0,1);
+			SimpleMatrix updateWordVec = djdL.extractMatrix((range-i) * (wordSize+LCRows)+LCRows,(range-i) * (wordSize+LCRows)+LCRows+wordSize,0,1);
+			
+			capVec = capVec.plus(updateCapVec.scale(-learningRate));
+			wordVec = wordVec.plus(updateWordVec.scale(-learningRate));
+			
+			FeatureFactory.allVecs.insertIntoThis(0, vecNum, wordVec);
+			LC.insertIntoThis(0, cap, capVec);
+			prevSample = sample;
+
+		}
+		
+		sample = data.get(sampleNum).word;
+		cap = getCapitalization(sample);
+		sample = sample.toLowerCase();		Integer num = FeatureFactory.wordToNum.get(sample);
+		if (num == null)
+			num = UUUNKKK;
+		SimpleMatrix wordV = FeatureFactory.allVecs.extractVector(false, num);
+		SimpleMatrix capV = LC.extractVector(false, cap);
+		
+		SimpleMatrix updateCapV = djdL.extractMatrix((range) * (wordSize+LCRows),(range) * (wordSize+LCRows)+LCRows,0,1);
+		SimpleMatrix updateWordV = djdL.extractMatrix((range) * (wordSize+LCRows)+LCRows,(range) * (wordSize+LCRows)+LCRows+wordSize,0,1);
+		
+		capV = capV.plus(updateCapV.scale(-learningRate));
+		wordV = wordV.plus(updateWordV.scale(-learningRate));
+		
+		FeatureFactory.allVecs.insertIntoThis(0, num, wordV);
+		LC.insertIntoThis(0, cap, capV);
+		
+		for (int i = 1; i <= range; i++) {
+			if ((sampleNum + i) >= m) {
+				sample = END;
+			} else {
+				sample = data.get(sampleNum).word;
+				cap = getCapitalization(sample);
+				sample = sample.toLowerCase();
+			}
+			if(sample.equals('.')){
+				sample = END;
+			}
+			if(prevSample.equals(END)){
+				sample = END;
+			}
+			Integer vecNum = FeatureFactory.wordToNum.get(sample);
+			
+			// If word doesn't exist insert UUUNKK
+			if (vecNum == null)
+				vecNum = UUUNKKK;
+
+			SimpleMatrix wordVec = FeatureFactory.allVecs.extractVector(false, vecNum);
+			SimpleMatrix capVec = LC.extractVector(false, cap);
+			
+			SimpleMatrix updateCapVec = djdL.extractMatrix((i + range) * (wordSize+LCRows),(i + range) * (wordSize+LCRows)+LCRows,0,1);
+			SimpleMatrix updateWordVec = djdL.extractMatrix((i + range) * (wordSize+LCRows)+LCRows,(i + range) * (wordSize+LCRows)+LCRows+wordSize,0,1);
+			
+			capVec = capVec.plus(updateCapVec.scale(-learningRate));
+			wordVec = wordVec.plus(updateWordVec.scale(-learningRate));
+			
+			FeatureFactory.allVecs.insertIntoThis(0, vecNum, wordVec);
+			LC.insertIntoThis(0, cap, capVec);
+
+		}
+		
+	}
+
 }

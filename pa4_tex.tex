@@ -1,9 +1,191 @@
  \documentclass{article} 
+\setlength{\topmargin}{-.5in}
+\setlength{\textheight}{9in}
+\setlength{\oddsidemargin}{.125in}
+\setlength{\textwidth}{6.25in}
+\usepackage{graphicx}
 \usepackage{amsmath}
 \usepackage{amssymb}
+\usepackage{appendix}
   \begin{document}
+\pagestyle{plain}
 
-\section{Backpropagation}
+\title{Learning Named Entity Recognition with Deep Neural Networks}
+\author{Awni Hannun\\
+{\small awni@stanford.edu}\\
+\and
+Ibrahim Cotran\\
+{\small icotran@stanford.edu}\\
+}
+\maketitle
+\section{Introduction}
+Named entity recognition (NER) has strong applications in natural language processing including Machine Translation and semantic representation of language. Here we explore the application of single and multi-layer Neural Networks (NN) to the task of NER. We attempt to learn a simplified NER task of the binary classification of a word as a person (1) or not (0).
+
+We learn both a single hidden layer NN architecture and a double hidden layer NN architecture. After optimizing the hyperparameters and training schedule of the model, we are able to achieve an F1 score of 93.2\% on the token level evaluation metric and an F1 score of 88.0\% on the entity level evaluation metric.  These results are particularly impressive given that we encode no specific information about natural language rules or features to the model. 
+
+\subsection{Supplemental Material}
+In the Appendix \ref{backprop} of this paper we present a full derivation of the backpropagation algorithm for finding the gradients of the parameters of a single layer NN.  
+
+We also prove in Appendix \ref{softmaxproof} that a softmax classifier with only 2 classes is equivalent to logistic regression with a single weight vector.
+
+Lastly in  Appendix \ref{tsne} we include visualizations of the word vector representations both before and after training our model with the optimal architecture and parameters.  We use the t-SNE algorithm for dimensionality reduction \cite{tsne}.
+
+
+\section{Model}\label{model}
+We learn and tune both a single and double hidden layer Nueral Network.  The cost function for both NNs is given by
+\begin{equation}\label{bigcost}
+\begin{split}
+J(\theta) = \frac{1}{m} \sum_{i=1}^m \left[-y ^{(i)} log(h_{\theta}(x^{(i)}))-(1-y^{(i)})log(1-h_{\theta}(x^{(i)}))\right]+\\ \frac{C}{2m} \left[ \sum_{j=1}^{nC} \sum_{k=1}^H W_{k,j}^2 + \sum_{k=1}^H U_{k}^2\right]
+\end{split}
+\end{equation}
+The Feedforward function for the single hidden layer NN is
+\begin{equation}\label{singleNN}
+h_{\theta}(x^{(i)}) = g\left(U^Tf\left(Wx^{(i)}+b^{(1)}\right)+b^{(2)}\right)
+\end{equation}
+The Feedforward function for the double hidden layer NN is
+\begin{equation}\label{doubleNN}
+h_{\theta}(x^{(i)}) = g\left(U^T f\left( W^{(2)}f\left(W^{(1)}x^{(i)}+b^{(1)}\right) +b^{(2)}\right)+b^{(3)}\right)
+\end{equation}
+In both \eqref{singleNN} and \eqref{doubleNN}, \(f\) and \(g\) are given by the \(sigmoid\) and \(hyperbolic\) \(tangent\) functions respectively.
+
+We use Stochastic Gradient Descent (SGD), \(\theta^{(t)} := \theta^{(t-1)} - \alpha\frac{\partial}{\partial\theta^{(t-1)}}J_i(\theta)\), to find the values of the parameters \(W^{(i)}, U, b^{(i)}\) and \(L\) which minimize \eqref{bigcost} and thereby maximize the log-likelihood of our data.  Here \(L\) is the word vector matrix containing \(n\)-dimensional pretrained word vectors for each word in the vocabulary (in this paper \(n=50\)).
+
+In order to implement SGD we must first derive the gradient of \eqref{bigcost} with respect to the above parameters.  Appendix \ref{backprop} steps through the backpropagation algorithm in order to derive these parameters.
+
+We also implement the numerical gradient calculation method in order to verify the correctness of our gradient derivations and implementations in both the single and double hidden layer NNs.  We find that the norm of the difference between the numerically computed and the analytically computed gradients is significantly less than \(10^{-7}\), on the order of \(10^{-9}\), thus we are confident in the correctness of our gradient derivation and implementation.
+
+In \ref{netanalysis} we explore the results found tuning the model hyperparameters for both NN architectures. These include the hidden layer size, the window size, the learning rate and the regularization constant.
+
+The input vector \(x^{(i)}\) to our model represents an \(n*C\) dimensional column vector where \(C\) is the contextual window size for inputs to the model, i.e. the \(C-1\) words that surround the word we atttempt to classify in the training corpus.  We explore various tunings of this window size in \ref{netanalysis} as well.  
+
+We implement and observe the difference between using the full document as the context or each sentence as the context.  In practice this is done using start and end symbols which are placed in windows that overlap the beginning and end of the document or the beginning and end of each sentence.
+
+Our final model appends a capitalization vector \cite{collobert} to each word vector corresponding to one of four capitalization scenarios.  These scenarios are: all lowercase, first word capitalized, all uppercase and at least one other than the first letter is uppercase.  We use a capitalization matrix \(LC\in\mathbb{R}^{5 \times 4}\) in order to store and update these parameters.
+
+\section{Netwok Analysis}\label{netanalysis}
+We now discuss the tuning of the Neural Network architecture and hyper-parameters in order to optimize F1 in the NER classification task.\footnote[1]{We use the following short form to represent the hyperparameters used in the neural network run. (C = [regularization constant] W = [window size] H = [hidden layer size] A = [learning rate]).}
+
+Implementing the capitalization feature vectors as described in the section \ref{model} and \cite{collobert} drastically improved both the train and dev F1 scores as seen in \ref{capfig}.  Clearly this implies that NER for person classification relies heavily on word capitalization information.  Previously the model was unable to distinguish between a capitalized and non-capitalized word which actually contains a lot of information about the classification of the word since “person” words tend to be uppercased in the first letter.  Thus we add this feature vector to each word vector in tuning the rest of our model hyper parameters.
+
+\begin{figure}[ht]
+\begin{minipage}[b]{0.45\linewidth}
+\centering
+\includegraphics[width=\textwidth]{tex_figures/cap.png}
+\caption{F1 scores of model with the presence and absence of capitalization matrix ( C = 0.0 W = 5 H = 100 A = 0.01)}
+\label{capfig}
+\end{minipage}
+\hspace{0.5cm}
+\begin{minipage}[b]{0.45\linewidth}
+\centering
+\includegraphics[width=\textwidth]{tex_figures/sentence.png}
+\caption{F1 scores of model with document and sentence based start and end tokens ( C = 0.0 W = 5 H = 100 A = 0.01)}
+\label{sentencefig}
+\end{minipage}
+\end{figure}
+
+
+Varying where we place our start and end tokens did not have much of an effect on our F1 score. We see from Figure \ref{sentencefig} that although the sentence model performs slightly better than the document based model, due to the randomness of initial values and the random permutation optimization implemented for SGD (described in Section \ref{furtheropt}) this can be attributed to the inherent noise in our system. In the mean, varying this parameter does not show significant changes to our system. Thus this feature is not added to our system before tuning other hyper parameters.
+
+
+
+
+
+The next hyperparameter we tuned was the learning rate for the SGD update step.  Figures \ref{learntrain} and \ref{learndev} displays the learning curves for three different values of the learning rate.  The smallest of value, .0001, is not able to break out of bad local minima when optimizing and thus converges to a much lower F1 value than the two higher learning rates.  The learning rate of .001 as in \ref{learntrain} and \ref{learndev} is the most stable yet takes much longer to converge than .01 and thus we chose to use .01 as our final learning rate in tuning the other parameters.  Notice that with a learning rate of .01 our model is much more erratic as it oscillates about the minimum yet does not converge precisely.  We use this learning rate in order to get baseline results for tuning parameters, however, in tuning the final model we anneal our learning rate in order to precisely converge to the highest optimum.
+
+\begin{figure}[ht]
+\begin{minipage}[b]{0.45\linewidth}
+\centering
+\includegraphics[width=\textwidth]{tex_figures/atrain.png}
+\caption{F1 scores of the training set varying the learning rate for stochastic gradient  ( C = 0.0001 W = 7 H = 100)}
+\label{learntrain}
+\end{minipage}
+\hspace{0.5cm}
+\begin{minipage}[b]{0.45\linewidth}
+\centering
+\includegraphics[width=\textwidth]{tex_figures/atest.png}
+\caption{F1 scores of the test set varying the learning rate for stochastic gradient  ( C = 0.0001 W = 7 H = 100)}
+\label{learndev}
+\end{minipage}
+\end{figure}
+
+
+After optimizing the input features and learning rate of the model we then tune the three hyper parameters: window size, hidden layer size and regularization.  We hold all other parameters to the model fixed and vary only the hyper parameter we attempt to optimize for.  In Figure \ref{winsize} we see that the model does not vary significantly with window size changes above size 5 with an optimal value at 7.  Thus we choose window size of 7 for our final model.
+In Figure \ref{hiddensize} we see again that as we vary the hidden layer size the model performance does not change significantly.  However, we do note that the training time increases substantially as we increase hidden layer size.  Thus given the time to run and the fact that a hidden layer size of 100 performs as well or better than the others, we choose a hidden layer size of 100 for our optimal model.
+In Figure \ref{varyregularization} we see that the model performance increases slightly with a small regularization weight (.0001) however drops off significantly if we increase the regularization constant above .001.  Thus we use regularization constant of 0.0001 for our optimal model.
+
+\begin{figure}[ht]
+\begin{minipage}[b]{0.45\linewidth}
+\centering
+\includegraphics[width=\textwidth]{tex_figures/windowsize.png}
+\caption{F1 scores of train and dev sets with a 1 hidden layer model varying the window size. ( C = 0.0  H = 100 A = 0.01)}
+\label{winsize}
+\end{minipage}
+\hspace{0.5cm}
+\begin{minipage}[b]{0.45\linewidth}
+\centering
+\includegraphics[width=\textwidth]{tex_figures/hiddensize.png}
+\caption{F1 scores of train and dev sets with a 1 hidden layer model varying the hidden layer size. ( C = 0.0 W = 5  A = 0.01)}
+\label{hiddensize}
+\end{minipage}
+\end{figure}
+
+\begin{figure}[ht]
+\begin{minipage}[b]{0.45\linewidth}
+\centering
+\includegraphics[width=\textwidth]{tex_figures/regularization.png}
+\caption{F1 scores of train and dev sets with a 1 hidden layer model varying the regularization constant. ( W = 5  H = 100 A = 0.01)}
+\label{varyregularization}
+\end{minipage}
+\hspace{0.5cm}
+\begin{minipage}[b]{0.45\linewidth}
+\centering
+\includegraphics[width=\textwidth]{tex_figures/HL.png}
+\caption{F1 scores of train and dev sets with both the single and double hidden layer NN architectures. (C=0.001 W = 7  H = 100 A = 0.01)}
+\label{numhl}
+\end{minipage}
+\end{figure}
+
+After tuning some of our hyperparameters, we tested our NN model by adding a second hidden layer and running that model against our first hidden layer. The results can be seen in Figure \ref{numhl}. We find that the second hidden layer is more erratic on the training set (it has a higher standard deviation) but in general the results are comparable using both layers. It is worth noting that for our training set, even with one hidden we achieve near perfect score. Since our F1 score is already very high and our model learns the most from our L matrix, the incremental value that we have from adding a second hidden layer is not noticeable. However, after running our model over a number of different tests, we found that adding our second layer did slightly improve our score by a small amount.
+
+The best result achieved was an F1 score of 93.2\%. Note that this is using a token level F1 evaluation metric. On an entity level, this score is 88.0\%. For this score we used the following hyperparameters: C = 0.0001, W = 7, H = 200, A = 0.01 (with annealing), K = 10.
+
+\section{Further Optimizations}
+
+This section outlines and describes several further optimzation techniques that we implemented in the model or chose not to implement and why.
+
+The first optimization we added to the model was to randomly shuffle the training sample set before each epoch of SGD (an epoch is a full iteration through the training set).  The purpose of implementing this was to allow for smoother learning throughout the epoch rather than biasing the gradient with several related word updates at a single step.  We do not show the results here due to space constraints, but we found that the optimal score achieved using this method of learning was slightly higher and the learning throughout the epochs was much smoother and more predictably converged to an optimum.
+
+Given the training F1 scores achieved in Figure \ref{numhl}, we see that the model fits the training set almost perfectly achieving an F1 of approximately 99\%.  We also note that the models do not noticeably overfit the test that despite perfect fitting of the training set.  From this we conclude that better optimization techiniques such as LBFGS or conjugate gradient methods would not allow the model to better fit the training data and likely would run slower since they calculate the gradient over the full training set over each iteration.  Thus we chose not to explore other optimization techiniques and conclude that SGD performance is not the bottle neck in achieving higher results.
+
+In order to achieve the optimal results of F1=93.2\%token and F1=88\%entity as mentioned in \ref{netanalysis} we employ a technique known as annealing in order to ensure that our model converges perfectly to the optimal value for parameters.  We anneal the learning rate by an order of magnitude after the first 7 epochs and another order of magnitude after the first 9 epochs and converge to the optimal results.  SInce we start the model with a high learning rate of 0.01 we find that the SGD oscillates around an optimal value and never quite converges thus dropping the learning rate allows us to converge more precisely to the optimal value.
+
+
+\section{Error Analysis}
+-quick analysis of before/after tsne visualizations.
+
+\newpage
+
+\begin{thebibliography}{9}
+
+\bibitem{tsne}
+  L.J.P. van der Maaten and G.E. Hinton. Visualizing High-Dimensional Data Using t-SNE. 
+  \emph{Journal of Machine Learning Research}
+  9(Nov):2579-2605, 2008.
+
+\bibitem{collobert}
+  R. Collobert, J. Weston, L. Bottou, M. Karlen, K. Kavukcuoglu, and P. Kuksa.
+  Natural Language Processing (Almost) from Scratch.
+  \emph{Journal of Machine Learning Research}.
+  12:2493–2537, 2011.
+
+
+\end{thebibliography}
+
+\newpage
+\appendix
+\appendixpage
+
+\section{Backpropagation}\label{backprop}
 We now derive the Backpropagation algorithm for finding the gradients of the cost function of the neural network.  For our parameters \(W\in\mathbb{R}^{H \times nC}\), \( b^{(1)} \in\mathbb{R}^H\), \(U\in\mathbb{R}^H\),\( b^{(2)} \in\mathbb{R}\) and \(L\in\mathbb{R}^{nC \times V}\) the cost function for our neural network is defined as follows.
 
 \begin{equation}
@@ -147,7 +329,7 @@ Our final derivations for \(\frac{\partial J}{\partial b^{(1)}}\), \(\frac{\part
 \end{equation}
 This completes the derivation of the parameters to the cost function \eqref{cost} for our neural network model.
 
-\section{Softmax and Logistic Regression}
+\section{Softmax and Logistic Regression}\label{softmaxproof}
 
 We now show that the Softmax classification model with only two classes is equivalent to logistic regression model with a single weight vector.  We begin with the general Sofmax model and setting the number of classes to 2 we then derive logistic regression with a single weight vector.
 
@@ -171,5 +353,13 @@ h_{\theta}(x) &= \frac{1}{1+e^{-\left(\theta_{1}-\theta_{2}\right)^Tx}}
 \end{aligned}
 \end{equation}
 We see that the final result derived in \eqref{logderivation} is exactly equivalent to the hypothesis function for   logistic regression with a single weight matrix, namely \(\theta = \theta_{1}-\theta_{2} \).
+
+\section{Word Vector Visualization Using t-SNE}\label{tsne}
+
+
+\section{Collaboration}
+We both worked on the code and the report together. We pair programmed the entire code base as a team, and wrote the report as a team as well.
+
+
 
 \end{document}

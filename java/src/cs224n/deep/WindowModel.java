@@ -104,13 +104,8 @@ public class WindowModel {
 			rand.add(i);
 		}
 		int itNum = 0;
-		for(int count=0; count<7; count++){
+		for(int count=0; count<9; count++){
 			Collections.shuffle(rand);
-			if(count>0){
-			System.out.println("Train data ");
-			test(_trainData);
-		    System.out.println("Test data ");
-			test(testData);}
 		for(int sampleNum = 0; sampleNum < m; sampleNum++){
 			if(itNum%100000==0) System.out.println("iter is "+itNum);
 			itNum++;
@@ -164,10 +159,12 @@ public class WindowModel {
 //			norm += matrixNorm(djdb2, numdb2);
 //			System.out.println("Norm is:" +Math.sqrt(norm));
 		}
-		  
-		}
-		System.out.print("Train ");
+		System.out.println("Train data ");
 		test(_trainData);
+	    System.out.println("Test data ");
+		test(testData);
+		}
+
 	}
 
 	private double matrixNorm(SimpleMatrix grad, SimpleMatrix numGrad){

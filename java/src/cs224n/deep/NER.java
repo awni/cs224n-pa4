@@ -13,10 +13,10 @@ public class NER {
       return;
     }
     
-    int windowSize = 5;
+    int windowSize = 7;
     int hiddenSize = 200;
     double learningRate = 0.01;
-    double regularization = 0.0;
+    double regularization = 0.0001;
     
     if(args.length > 5){
         regularization = Double.parseDouble(args[args.length-4]);
@@ -34,11 +34,11 @@ public class NER {
     SimpleMatrix allVecs = FeatureFactory.readWordVectors("../data/wordVectors.txt");
 
     // initialize model
-    WindowModel_noCap model = new WindowModel_noCap(windowSize, hiddenSize, learningRate, regularization);
+    WindowModel_2HL model = new WindowModel_2HL(windowSize, hiddenSize, learningRate, regularization);
     model.initWeights();
     
     // TODO: Implement those two functions
-    model.train(trainData, testData);
+    //model.train(trainData, testData);
     System.out.print("Test ");
     model.test(testData);
   }
